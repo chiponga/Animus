@@ -75,9 +75,9 @@ def get_api_key():
     return key
 
 
-def submit(base_url, model, payload, api_key):
+def submit(base_url, endpoint, payload, api_key):
     """Submete o job. Retorna request_id ou resultado direto se síncrono."""
-    url = f"{base_url}/api/v1/{model}"
+    url = f"{base_url}/api/v1/{endpoint}"
     try:
         r = requests.post(
             url,
@@ -188,7 +188,7 @@ def parse_args():
     return p.parse_args()
 
 
-def build_payload(args):
+def build_payload(args, model_info):
     payload = {"prompt": args.prompt}
     if args.aspect_ratio:
         payload["aspect_ratio"] = args.aspect_ratio
@@ -197,8 +197,12 @@ def build_payload(args):
     if args.height:
         payload["height"] = args.height
     if args.image_url:
-        payload["image_url"] = args.image_url
-        if args.strength is not None:
+        image_field = model_info.get("image_field", "image_url")
+        if model_info.get("image_field_is_array"):
+            payload[image_field] = [args.image_url]
+        else:
+            payload[image_field] = args.image_url
+        if args.strength is not None and not model_info.get("image_field_is_array"):
             payload["strength"] = args.strength
     if args.seed and args.seed != -1:
         payload["seed"] = args.seed
@@ -229,16 +233,17 @@ def main():
         )
     model_info = models.get(args.model, {})
     kind = model_info.get("kind", "t2i")
+    endpoint = model_info.get("endpoint", args.model)
 
-    payload = build_payload(args)
+    payload = build_payload(args, model_info)
 
     if args.dry_run:
-        print(json.dumps({"model": args.model, "payload": payload}, indent=2))
+        print(json.dumps({"model": args.model, "endpoint": endpoint, "payload": payload}, indent=2))
         return 0
 
     api_key = get_api_key()
-    print(f"[visual-gen] submit model={args.model} kind={kind}", file=sys.stderr)
-    submit_resp = submit(DEFAULT_BASE, args.model, payload, api_key)
+    print(f"[visual-gen] submit model={args.model} endpoint={endpoint} kind={kind}", file=sys.stderr)
+    submit_resp = submit(DEFAULT_BASE, endpoint, payload, api_key)
 
     # Alguns endpoints retornam resultado direto, outros retornam request_id pra polling
     request_id = submit_resp.get("request_id") or submit_resp.get("id")
