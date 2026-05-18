@@ -1,0 +1,85 @@
+{
+  "_comment": "Catálogo curado de modelos Muapi.ai. Endpoint = ID nesta API.",
+  "_provider": "muapi.ai",
+  "_base_url": "https://api.muapi.ai/api/v1",
+  "_auth": "header: x-api-key: $MUAPI_API_KEY",
+  "_pattern": "POST /api/v1/{id} -> {request_id} -> GET /api/v1/predictions/{request_id}/result até status=completed -> baixar URL",
+
+  "models": {
+    "flux-dev": {
+      "kind": "t2i",
+      "label": "Flux Dev",
+      "use_when": "Imagem genérica de alta qualidade, controle por width/height, bom equilíbrio custo/qualidade.",
+      "params": {
+        "prompt": "string (2-3000 chars)",
+        "width": "int múltiplo de 64 (128-2048, default 1024)",
+        "height": "int múltiplo de 64 (128-2048, default 1024)",
+        "num_images": "int 1-4 (default 1)"
+      },
+      "tier": "padrão"
+    },
+
+    "google-imagen4": {
+      "kind": "t2i",
+      "label": "Google Imagen 4",
+      "use_when": "Foto-realismo premium, retratos, produto, texto dentro da imagem. Mais caro que Flux mas qualidade superior.",
+      "params": {
+        "prompt": "string",
+        "aspect_ratio": "1:1 | 3:4 | 4:3 | 9:16 | 16:9 | 3:2 | 2:3"
+      },
+      "tier": "premium"
+    },
+
+    "nano-banana": {
+      "kind": "t2i_or_i2i",
+      "label": "Nano Banana",
+      "use_when": "Versátil: gera ou EDITA imagem existente (passa image_url). Bom pra alterações pontuais (mudar roupa, fundo, estilo) preservando rosto/composição.",
+      "params": {
+        "prompt": "string (descreve resultado final desejado)",
+        "aspect_ratio": "1:1 | 3:4 | 4:3 | 9:16 | 16:9 | 3:2 | 2:3 | 5:4 | 4:5 | 21:9",
+        "image_url": "(opcional) URL da imagem a editar — se presente vira I2I",
+        "strength": "(opcional, 0.0-1.0, default 0.6) só com image_url"
+      },
+      "tier": "padrão"
+    },
+
+    "kling-v2.6-pro-t2v": {
+      "kind": "t2v",
+      "label": "Kling v2.6 Pro (texto → vídeo)",
+      "use_when": "Vídeo curto premium a partir de texto. Movimento natural, boa coerência temporal. Caro mas qualidade top.",
+      "params": {
+        "prompt": "string",
+        "aspect_ratio": "16:9 | 9:16 | 1:1",
+        "duration": "5 | 10 (segundos)"
+      },
+      "tier": "premium"
+    },
+
+    "seedance-pro-t2v-fast": {
+      "kind": "t2v",
+      "label": "Seedance Pro Fast (texto → vídeo)",
+      "use_when": "Vídeo barato e rápido a partir de texto. Use pra rascunho/prova de conceito antes de gastar com Kling.",
+      "params": {
+        "prompt": "string",
+        "aspect_ratio": "16:9 | 9:16 | 1:1",
+        "duration": "5 (segundos)"
+      },
+      "tier": "barato"
+    },
+
+    "veo3-image-to-video": {
+      "kind": "i2v",
+      "label": "Google Veo 3 (imagem → vídeo)",
+      "use_when": "Anima uma imagem fixa em vídeo curto. Top de linha pra realismo, áudio nativo opcional, movimento de câmera coerente.",
+      "params": {
+        "prompt": "string (movimento desejado, NÃO descreve a imagem)",
+        "image_url": "URL da imagem inicial (obrigatório)",
+        "aspect_ratio": "16:9 | 9:16",
+        "duration": "8 (segundos)"
+      },
+      "tier": "premium"
+    }
+  },
+
+  "_full_catalog_link": "https://github.com/Anil-matcha/Open-Generative-AI/blob/main/packages/studio/src/models.js — 200+ modelos. Adicione aqui o que precisar."
+}
