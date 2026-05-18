@@ -1,15 +1,19 @@
-Quero instalar meu agente autonomo Claude + Telegram numa VPS Ubuntu.
+Olá! Quero instalar o agente Animus no meu container Gradsky.
 
-Acessa o repositorio publico https://github.com/denderson2013-bot/agente-claude-telegram-setup-alunos-denderson
-e segue o passo a passo de SETUP-AGENTE.md.
+Repositório: https://github.com/chiponga/Animus
 
-Vou te dar as informacoes conforme voce pedir:
-- IP, usuario e senha da VPS
+Sua missão:
+1. Clona o repo em /workspace/Animus (se ainda não existir).
+2. Lê o arquivo INSTALL.md que está na raiz e executa todos os passos.
+3. Me faz UMA pergunta de cada vez, espera eu responder antes da próxima.
+
+Informações que vou te dar quando você pedir:
 - Nome do meu agente (ex: Animus, Atlas, Nexus)
-- Meu nome
-- Token do bot Telegram (eu crio no @BotFather quando voce pedir)
-- Meu user_id Telegram (eu pego no @userinfobot quando voce pedir)
-- (Opcional) Chave OpenAI pra transcrever audios
-- (Opcional) Chave ElevenLabs pra voz feminina
+- Como você deve me chamar (Chefe, etc.)
+- Token do bot Telegram (eu crio no @BotFather quando você pedir)
+- Meu user_id Telegram (eu pego no @userinfobot quando você pedir)
+- (Opcional) DATABASE_URL do Supabase pra memória persistente
+- (Opcional) Chave OpenAI pra transcrever áudios
+- (Opcional) Chave ElevenLabs pra TTS feminino
 
-Faz SSH na VPS por mim, instala o ambiente todo (bootstrap.sh), configura o agente, sobe systemd, e me confirma quando estiver no ar conversando comigo no Telegram.
+Quando terminar, confirma que o bot está respondendo no Telegram.

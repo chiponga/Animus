@@ -1,193 +1,115 @@
 #!/bin/bash
-# ============================================
-# BOOTSTRAP DO AGENTE CLAUDE + TELEGRAM v3
-# ============================================
-# Roda UMA VEZ SO numa VPS Ubuntu 22+ ou no macOS.
-# Linux: roda como root (sudo bash ou ja como root)
-# Mac: roda como usuario normal (sem sudo na chamada)
+# =============================================================
+# bootstrap.sh — instala dependências do agente Animus (Gradsky)
+# =============================================================
+# Container Gradsky:
+#   - sem systemd, sem sudo (já é root no container)
+#   - PM2 como process manager
+#   - Postgres remoto (Supabase) — NÃO instala postgres local
+#   - HTTPS quem cuida é o provedor — NÃO instala Caddy
 #
-# Instala: Node 22 (via nvm), Python 3, ffmpeg, Claude Code CLI 2.1.118 (pinado),
-#          tmux, PostgreSQL 16 + pgvector, Caddy, pm2 globalmente.
-#
-# v3: Adicionou Caddy + pm2 + nvm (pra gerenciar Node).
-#     Suporte macOS via Homebrew.
+# Idempotente: pode rodar várias vezes sem quebrar nada.
 #
 # Uso:
-#   curl -fsSL https://raw.githubusercontent.com/denderson2013-bot/agente-claude-telegram-setup-alunos-denderson/main/bootstrap.sh | bash
-# ============================================
+#   bash bootstrap.sh
+# =============================================================
 
-set -e
+set -euo pipefail
 
-# Detecta SO
-if [[ "$OSTYPE" == "darwin"* ]]; then
-  OS="macos"
-elif [[ -f /etc/os-release ]] && grep -q "Ubuntu" /etc/os-release; then
-  OS="ubuntu"
-else
-  echo "ERRO: SO nao suportado. Precisa Ubuntu 22+ ou macOS 13+."
+log() { printf '\033[1;36m>> %s\033[0m\n' "$*"; }
+ok()  { printf '\033[1;32m✓ %s\033[0m\n' "$*"; }
+warn() { printf '\033[1;33m! %s\033[0m\n' "$*" >&2; }
+
+# Detecta SO; container Gradsky é Debian/Ubuntu
+if ! command -v apt-get >/dev/null 2>&1; then
+  warn "Esse bootstrap foi escrito pra container Gradsky (Debian/Ubuntu)."
+  warn "Detectado SO sem apt-get — abortando."
   exit 1
 fi
 
-echo "============================================"
-echo "BOOTSTRAP AGENTE CLAUDE + TELEGRAM v3 ($OS)"
-echo "============================================"
+export DEBIAN_FRONTEND=noninteractive
 
-# ============================================
-# UBUNTU
-# ============================================
-if [[ "$OS" == "ubuntu" ]]; then
-  if [[ "$EUID" -ne 0 ]]; then
-    echo "ERRO: rode como root no Ubuntu."
-    echo "Tenta: sudo bash <(curl -fsSL https://raw.githubusercontent.com/denderson2013-bot/agente-claude-telegram-setup-alunos-denderson/main/bootstrap.sh)"
-    exit 1
+# -------------------------------------------------------------
+# Sistema base
+# -------------------------------------------------------------
+log "Atualizando lista de pacotes..."
+apt-get update -qq
+
+log "Instalando pacotes base (python, ffmpeg, git, curl, tmux, build tools)..."
+apt-get install -y -qq \
+  curl git ca-certificates build-essential unzip \
+  python3 python3-pip python3-venv \
+  ffmpeg tmux lsof jq >/dev/null
+
+# -------------------------------------------------------------
+# Python — libs do bot
+# -------------------------------------------------------------
+log "Instalando libs Python (requests)..."
+pip3 install --quiet --break-system-packages requests 2>/dev/null \
+  || pip3 install --quiet requests
+ok "Python deps prontas."
+
+# -------------------------------------------------------------
+# Node 22 via NodeSource (mais previsível que nvm pra PM2 global)
+# -------------------------------------------------------------
+NODE_OK=0
+if command -v node >/dev/null 2>&1; then
+  NODE_MAJOR="$(node -v | sed 's/v\([0-9]*\).*/\1/')"
+  if [[ "$NODE_MAJOR" -ge 22 ]]; then
+    NODE_OK=1
   fi
-
-  echo ">> Sistema base + Python + ffmpeg..."
-  apt update
-  apt install -y curl git tmux build-essential unzip ca-certificates \
-                 python3 python3-pip python3-venv \
-                 ffmpeg lsof debian-keyring debian-archive-keyring apt-transport-https
-
-  pip3 install --break-system-packages requests psycopg2-binary fastapi uvicorn anthropic 2>/dev/null || \
-    pip3 install requests psycopg2-binary fastapi uvicorn anthropic
-
-  # Node 22 via nvm (pra root)
-  if ! command -v node &> /dev/null || [[ "$(node -v)" != v2[2-9]* ]]; then
-    echo ">> Instalando nvm + Node 22..."
-    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
-    export NVM_DIR="$HOME/.nvm"
-    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-    nvm install 22
-    nvm use 22
-    nvm alias default 22
-
-    # symlink global pra acessivel via PATH normal
-    ln -sf "$NVM_DIR/versions/node/$(nvm version)/bin/node" /usr/local/bin/node
-    ln -sf "$NVM_DIR/versions/node/$(nvm version)/bin/npm" /usr/local/bin/npm
-    ln -sf "$NVM_DIR/versions/node/$(nvm version)/bin/npx" /usr/local/bin/npx
-  fi
-
-  # PostgreSQL 16 + pgvector
-  if ! command -v psql &> /dev/null; then
-    echo ">> Instalando PostgreSQL 16 + pgvector..."
-    install -d /usr/share/postgresql-common/pgdg
-    curl -o /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc \
-      --fail https://www.postgresql.org/media/keys/ACCC4CF8.asc
-    echo "deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc] https://apt.postgresql.org/pub/repos/apt/ $(lsb_release -cs)-pgdg main" \
-      > /etc/apt/sources.list.d/pgdg.list
-    apt update
-    apt install -y postgresql-16 postgresql-16-pgvector
-    systemctl enable --now postgresql
-  fi
-
-  # Caddy (proxy reverso pra agent-manager)
-  if ! command -v caddy &> /dev/null; then
-    echo ">> Instalando Caddy..."
-    curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/gpg.key' | \
-      gpg --dearmor -o /usr/share/keyrings/caddy-stable-archive-keyring.gpg
-    curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/debian.deb.txt' | \
-      tee /etc/apt/sources.list.d/caddy-stable.list
-    apt update
-    apt install -y caddy
-    systemctl enable --now caddy
-  fi
-
-  # Claude Code CLI (PINADO 2.1.118)
-  echo ">> Instalando Claude Code CLI 2.1.118..."
-  npm install -g @anthropic-ai/claude-code@2.1.118
-
-  # PM2 (process manager pro agent-manager)
-  echo ">> Instalando pm2..."
-  npm install -g pm2
-
-  # Baixa SETUP-AGENTE.md pra /root/
-  echo ">> Baixando SETUP-AGENTE.md..."
-  curl -fsSL https://raw.githubusercontent.com/denderson2013-bot/agente-claude-telegram-setup-alunos-denderson/main/SETUP-AGENTE.md \
-    -o /root/SETUP-AGENTE.md
-  curl -fsSL https://raw.githubusercontent.com/denderson2013-bot/agente-claude-telegram-setup-alunos-denderson/main/.env.example \
-    -o /root/.env.example
-
-  HOME_DIR="/root"
 fi
 
-# ============================================
-# MACOS
-# ============================================
-if [[ "$OS" == "macos" ]]; then
-  if [[ "$EUID" -eq 0 ]]; then
-    echo "ERRO: NAO rode como root no Mac. Roda como seu usuario normal."
-    exit 1
-  fi
-
-  # Homebrew
-  if ! command -v brew &> /dev/null; then
-    echo ">> Instalando Homebrew..."
-    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-  fi
-
-  echo ">> Instalando dependencias via Homebrew..."
-  brew install python@3.11 ffmpeg tmux postgresql@16 pgvector caddy
-
-  # Node 22 via nvm
-  if ! command -v node &> /dev/null || [[ "$(node -v)" != v2[2-9]* ]]; then
-    echo ">> Instalando nvm + Node 22..."
-    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
-    export NVM_DIR="$HOME/.nvm"
-    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-    nvm install 22
-    nvm alias default 22
-  fi
-
-  # Inicia Postgres
-  brew services start postgresql@16
-
-  pip3 install --user requests psycopg2-binary fastapi uvicorn anthropic
-
-  # Claude Code CLI 2.1.118
-  echo ">> Instalando Claude Code CLI 2.1.118..."
-  npm install -g @anthropic-ai/claude-code@2.1.118
-  npm install -g pm2
-
-  # Baixa SETUP-AGENTE.md pra ~
-  curl -fsSL https://raw.githubusercontent.com/denderson2013-bot/agente-claude-telegram-setup-alunos-denderson/main/SETUP-AGENTE.md \
-    -o $HOME/SETUP-AGENTE.md
-  curl -fsSL https://raw.githubusercontent.com/denderson2013-bot/agente-claude-telegram-setup-alunos-denderson/main/.env.example \
-    -o $HOME/.env.example
-
-  HOME_DIR="$HOME"
+if [[ "$NODE_OK" -eq 0 ]]; then
+  log "Instalando Node 22 via NodeSource..."
+  curl -fsSL https://deb.nodesource.com/setup_22.x | bash - >/dev/null
+  apt-get install -y -qq nodejs >/dev/null
 fi
+ok "Node $(node -v) / npm $(npm -v)"
 
-# ============================================
-# RESUMO FINAL
-# ============================================
-echo ""
-echo "============================================"
-echo "OK! Pre-requisitos instalados (v3)."
-echo "============================================"
-echo ""
-echo "VERSOES INSTALADAS:"
-node --version 2>/dev/null   | xargs echo "  Node:"
-python3 --version 2>/dev/null | xargs echo "  Python:"
-ffmpeg -version 2>/dev/null | head -1 | xargs echo "  ffmpeg:"
-claude --version 2>/dev/null | xargs echo "  Claude:"
-psql --version 2>/dev/null | head -1 | xargs echo "  PostgreSQL:"
-caddy version 2>/dev/null | head -1 | xargs echo "  Caddy:"
-pm2 --version 2>/dev/null | xargs echo "  pm2:"
-echo ""
-echo "============================================"
-echo "PROXIMOS PASSOS:"
-echo "============================================"
-echo ""
-echo "1. Logar no Claude com sua conta Pro ou Max:"
-echo "   claude auth login --claudeai"
-echo "   (abre link no navegador, loga, autoriza, cola codigo)"
-echo ""
-echo "2. Iniciar o Claude:"
-echo "   cd $HOME_DIR && claude --dangerously-skip-permissions"
-echo ""
-echo "3. Dentro do Claude, cola essa mensagem:"
-echo ""
-echo "   Leia o arquivo SETUP-AGENTE.md e execute todos os passos."
-echo "   Me faca perguntas quando precisar de informacao minha."
-echo ""
-echo "============================================"
+# -------------------------------------------------------------
+# PM2
+# -------------------------------------------------------------
+if ! command -v pm2 >/dev/null 2>&1; then
+  log "Instalando PM2 globalmente..."
+  npm install -g --silent pm2 >/dev/null
+fi
+ok "PM2 $(pm2 -v)"
+
+# -------------------------------------------------------------
+# Claude Code CLI
+# -------------------------------------------------------------
+if ! command -v claude >/dev/null 2>&1; then
+  log "Instalando Claude Code CLI (@anthropic-ai/claude-code)..."
+  npm install -g --silent @anthropic-ai/claude-code >/dev/null
+fi
+ok "Claude CLI: $(claude --version 2>/dev/null || echo 'instalado')"
+
+# -------------------------------------------------------------
+# GitHub CLI (opcional, mas útil pro agente entregar projetos)
+# -------------------------------------------------------------
+if ! command -v gh >/dev/null 2>&1; then
+  log "Instalando GitHub CLI..."
+  curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg \
+    | gpg --dearmor -o /usr/share/keyrings/githubcli-archive-keyring.gpg 2>/dev/null
+  chmod go+r /usr/share/keyrings/githubcli-archive-keyring.gpg
+  echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" \
+    > /etc/apt/sources.list.d/github-cli.list
+  apt-get update -qq
+  apt-get install -y -qq gh >/dev/null || warn "Falha ao instalar gh — segue sem ele."
+fi
+command -v gh >/dev/null 2>&1 && ok "gh $(gh --version | head -1 | awk '{print $3}')"
+
+echo
+ok "Bootstrap concluído."
+echo
+echo "Versões instaladas:"
+printf '  Node     '; node --version
+printf '  npm      v%s\n' "$(npm --version)"
+printf '  Python   '; python3 --version
+printf '  ffmpeg   '; ffmpeg -version 2>/dev/null | head -1 | awk '{print $3}'
+printf '  Claude   '; claude --version 2>/dev/null || echo '(checar com `claude --version`)'
+printf '  PM2      v%s\n' "$(pm2 -v)"
+command -v gh >/dev/null 2>&1 && printf '  gh       %s\n' "$(gh --version | head -1 | awk '{print $3}')"
+echo
+echo "Próximo: rode 'bash install.sh' pra configurar o agente."
