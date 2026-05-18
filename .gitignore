@@ -61,6 +61,10 @@ Thumbs.db
 # Projetos auxiliares fora do escopo do Animus
 fluxo-plus/
 
+# WIP pessoal / projetos de cliente (não versionar no repo público)
+.agents/
+brasil-surfers-landing/
+
 # Sandboxes / artefatos de teste local
 calculadora.html
 landing-financeiro.html
@@ -68,3 +72,5 @@ landing-financeiro.html
 # Memória local (cada instalação gera as suas notas)
 memory/
 .learnings/*.local.md
+skills/ui-styling/scripts/.coverage
+.coverage
