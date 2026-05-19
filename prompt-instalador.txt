@@ -1,19 +1,42 @@
-Olá! Quero instalar o agente Animus no meu container Gradsky.
+Olá! Quero instalar o agente Animus no meu container Gradsky (ou VPS Ubuntu).
 
-Repositório: https://github.com/chiponga/Animus
+Repositório público: https://github.com/chiponga/Animus
 
-Sua missão:
+Sua missão (faz tudo autônomo, me pedindo apenas o secret que precisar):
+
 1. Clona o repo em /workspace/Animus (se ainda não existir).
-2. Lê o arquivo INSTALL.md que está na raiz e executa todos os passos.
-3. Me faz UMA pergunta de cada vez, espera eu responder antes da próxima.
+2. Lê o arquivo SETUP-AGENTE.md na raiz e segue o passo a passo.
+3. Roda `bash bootstrap.sh` pra instalar deps (Python, Node 22, PM2, Claude CLI, gh, pandas, requests).
+4. Roda `bash install.sh` pro wizard interativo.
+5. Quando o install pedir, ME PERGUNTA UMA COISA POR VEZ e espera eu responder.
 
-Informações que vou te dar quando você pedir:
-- Nome do meu agente (ex: Animus, Atlas, Nexus)
+REGRA OBRIGATÓRIA DE FLUXO:
+
+O install vai te perguntar (e você passa pra mim, uma por uma):
+- Nome do agente (ex: Animus, Atlas, Nexus)
 - Como você deve me chamar (Chefe, etc.)
 - Token do bot Telegram (eu crio no @BotFather quando você pedir)
 - Meu user_id Telegram (eu pego no @userinfobot quando você pedir)
 - (Opcional) DATABASE_URL do Supabase pra memória persistente
-- (Opcional) Chave OpenAI pra transcrever áudios
+- (Opcional) Chave OpenAI pra transcrever áudios (Whisper)
 - (Opcional) Chave ElevenLabs pra TTS feminino
 
-Quando terminar, confirma que o bot está respondendo no Telegram.
+DEPOIS do bot subindo, me oferece configurar as SKILLS premium (todas opcionais):
+- MUAPI_API_KEY → desbloqueia geração de imagem/vídeo (Flux, Imagen, Kling, Veo) — https://muapi.ai
+- GEMINI_API_KEY → desbloqueia 4 skills (reddit-icp, producthunt-launch-kit, meeting-brief-gen, claude-md-gen) — grátis em https://aistudio.google.com/app/apikey
+- VALIDEMAIL_API_KEY → desbloqueia cold-email-verifier — https://validemail.co (50 verificações grátis)
+- TAVILY_API_KEY → meeting-brief-generator — https://tavily.com (grátis)
+
+Pula qualquer key opcional se eu não tiver — a skill correspondente fica dormente, sem quebrar nada.
+
+CONTEXTO IMPORTANTE:
+- Não preciso de SSH em VPS. Esse container Gradsky tem 3 volumes persistentes (/workspace, /root, /opt).
+- NÃO TEM systemd no container — uso PM2 pra rodar processos 24/7.
+- O motor LLM do agente é o Claude Code (já autenticado via OAuth Pro/Max do Chefe; se não estiver, você roda `claude /login` e me dá a URL pra autorizar no browser).
+- Os 9 especialistas (Atlas, Helena, Aegis, Titan, Sentinel, Victor, Apollo, Oracle, Felipe) ficam em .claude/agents/ e são auto-descobertos pelo Claude Code.
+- As 57 skills ficam em skills/ (com symlink .claude/skills → ../skills pra auto-discovery).
+
+Quando terminar:
+- Confirma com `pm2 status` que o bot tá online
+- Confirma que /workspace/Animus/.env tá 600
+- Manda uma mensagem teste pelo Telegram e me avisa quando o bot responder

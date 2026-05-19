@@ -44,9 +44,9 @@ apt-get install -y -qq \
 # -------------------------------------------------------------
 # Python — libs do bot
 # -------------------------------------------------------------
-log "Instalando libs Python (requests)..."
-pip3 install --quiet --break-system-packages requests 2>/dev/null \
-  || pip3 install --quiet requests
+log "Instalando libs Python (requests, pandas)..."
+pip3 install --quiet --break-system-packages requests pandas 2>/dev/null \
+  || pip3 install --quiet requests pandas
 ok "Python deps prontas."
 
 # -------------------------------------------------------------
@@ -99,6 +99,25 @@ if ! command -v gh >/dev/null 2>&1; then
   apt-get install -y -qq gh >/dev/null || warn "Falha ao instalar gh — segue sem ele."
 fi
 command -v gh >/dev/null 2>&1 && ok "gh $(gh --version | head -1 | awk '{print $3}')"
+
+# -------------------------------------------------------------
+# Skills com deps Node (hackernews-intel)
+# -------------------------------------------------------------
+REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+if [[ -f "$REPO_DIR/skills/hackernews-intel/package.json" ]]; then
+  log "Instalando deps Node da skill hackernews-intel..."
+  (cd "$REPO_DIR/skills/hackernews-intel" && npm install --silent --no-audit --no-fund 2>&1 | tail -2) || warn "Falha em hackernews-intel npm install — skill pode não funcionar."
+fi
+
+# -------------------------------------------------------------
+# Symlink .claude/skills -> ../skills (Claude Code auto-discovery)
+# -------------------------------------------------------------
+if [[ -d "$REPO_DIR/skills" && ! -e "$REPO_DIR/.claude/skills" ]]; then
+  log "Criando symlink .claude/skills -> ../skills (auto-discovery)..."
+  mkdir -p "$REPO_DIR/.claude"
+  (cd "$REPO_DIR/.claude" && ln -sfn ../skills skills)
+  ok ".claude/skills configurado."
+fi
 
 echo
 ok "Bootstrap concluído."

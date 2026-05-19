@@ -126,7 +126,7 @@ def extract_output_url(result):
     """Encontra a URL do arquivo gerado no payload do Muapi.
     A API retorna formatos variados; tentamos os mais comuns."""
     candidates = []
-    for key in ("output", "result", "output_url", "video_url", "image_url", "url"):
+    for key in ("output", "outputs", "result", "results", "images", "videos", "output_url", "video_url", "image_url", "url"):
         v = result.get(key)
         if isinstance(v, str) and v.startswith("http"):
             candidates.append(v)
