@@ -123,12 +123,17 @@ tail -f animus-bot/logs/bot.log # log da aplicação
 cat .env                        # config atual (cuidado, contém secrets)
 ```
 
-Pra atualizar o repo:
+Pra atualizar o repo (idempotente, com backup automático):
 
 ```bash
 cd /workspace/Animus
-git pull --ff-only origin main
-pm2 restart animus-bot
+bash scripts/upgrade.sh
+```
+
+Se quebrar algo:
+
+```bash
+bash scripts/rollback.sh
 ```
 
 ---
@@ -137,20 +142,36 @@ pm2 restart animus-bot
 
 | Arquivo | O quê |
 |---|---|
-| `INSTALL.md` | Roteiro que o Claude segue ao receber o repo |
+| `SETUP-AGENTE.md` | Roteiro que o Claude segue (MODO A local + MODO B SSH remoto) |
 | `prompt-instalador.txt` | Texto que você cola no Claude pra iniciar |
 | `install.sh` | Wizard interativo CLI (alternativa ao fluxo via Claude) |
-| `bootstrap.sh` | Instala dependências (Python, Node, PM2, Claude CLI, gh) |
+| `bootstrap.sh` | Instala deps (Python, Node, PM2, Claude CLI, gh, pandas) |
 | `animus-bot/bot.py` | Daemon Telegram (PM2 roda esse) |
 | `.env.example` | Template do `.env` — copie pra `.env` e preencha |
 | `CLAUDE.md` | Personalidade + regras do agente (lida toda sessão) |
-| `.claude/agents/` | Definições dos 9 subagentes |
-| `skills/` | 50+ skills (marketing, dev, vendas, etc.) |
+| `CHANGELOG.md` | Histórico de versões |
+| `.claude/agents/` | 9 subagentes (atlas, helena, aegis, titan, sentinel, victor, apollo, oracle, felipe) |
+| `.claude/skills/` | Symlink → `skills/` (auto-discovery) |
+| `skills/` | 57 skills (marketing, dev, vendas, growth, branding, etc.) |
+| `scripts/` | `backup.sh`, `rollback.sh`, `upgrade.sh`, `validate.sh` |
+| `docs/TROUBLESHOOTING.md` | Fixes pros 20+ erros mais comuns |
+
+---
+
+## Por que Claude Code (não OpenClaw)?
+
+| Critério | Animus (Claude Code) | OpenClaw |
+|---|---|---|
+| Skills auto-discovery | ✅ nativo via `.claude/skills/` | precisa adapter |
+| LLMs alternativos (GLM, Codex) | ✗ só Claude | ✅ vantagem dele |
+| Já paga Claude Pro/Max? | ✅ sem custo extra | redundante |
+| Skill tool nativo | ✅ Claude carrega 57 skills no boot | manual |
+| Maturidade do CLI | ✅ 2.1.144 estável | menos testado |
+
+**Veredito**: se você já tem Claude Pro/Max, fica com Claude Code (este repo). OpenClaw só compensa pra quem quer rodar GLM 4.5 (Z.ai) ou GPT Codex 5.5 sem assinatura Anthropic.
 
 ---
 
 ## Notas legacy
 
-Os arquivos `SETUP-AGENTE.md`, `INSTRUCAO-PARA-ALUNO.md`, `PASSO-A-PASSO.txt`, `launchd/` e referências a `systemctl`/Caddy/postgres-local pertencem ao fluxo antigo (VPS Ubuntu + SSH + systemd). Ficam preservados como referência mas **não são usados no fluxo Gradsky**.
-
-Para o fluxo Gradsky, leia apenas: `README.md` → `INSTALL.md` → (se quiser) `install.sh`.
+`INSTRUCAO-PARA-ALUNO.md`, `PASSO-A-PASSO.txt`, `launchd/` pertencem ao fluxo antigo (Mac local + launchd). Ficam preservados mas não são usados no fluxo Gradsky/VPS atual.
