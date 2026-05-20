@@ -1,12 +1,22 @@
+<<<<<<< HEAD
 ﻿# Animus â€” Agente Claude Code + Telegram
+=======
+# Animus — Agente Claude Code + Telegram
+>>>>>>> e3f95ead324819de792d72b88e4ceac8037a42fb
 
 Agente orquestrador rodando 24/7 num container Gradsky (Debian/Ubuntu persistente). Cada mensagem do Telegram dispara um `claude -p` headless que delega pros 9 subagentes especialistas (atlas, helena, aegis, titan, sentinel, victor, apollo, oracle, felipe).
 
 ---
 
+<<<<<<< HEAD
 ## InstalaÃ§Ã£o em 1 comando (recomendado)
 
 ### PrÃ©-requisito
+=======
+## Instalação em 1 comando (recomendado)
+
+### Pré-requisito
+>>>>>>> e3f95ead324819de792d72b88e4ceac8037a42fb
 - Container Gradsky (Debian/Ubuntu, root) com `/workspace` persistente.
 - Claude Code CLI logado na sua conta Pro/Max (ou rode `claude /login` na primeira vez).
 
@@ -18,6 +28,7 @@ Agente orquestrador rodando 24/7 num container Gradsky (Debian/Ubuntu persistent
 cd /workspace && claude
 ```
 
+<<<<<<< HEAD
 **2.** Cole o prompt abaixo (tambÃ©m estÃ¡ em [`prompt-instalador.txt`](./prompt-instalador.txt)):
 
 ```
@@ -29,17 +40,38 @@ Sua missÃ£o:
 1. Clona o repo em /workspace/Animus (se ainda nÃ£o existir).
 2. LÃª o arquivo INSTALL.md que estÃ¡ na raiz e executa todos os passos.
 3. Me faz UMA pergunta de cada vez, espera eu responder antes da prÃ³xima.
+=======
+**2.** Cole o prompt abaixo (também está em [`prompt-instalador.txt`](./prompt-instalador.txt)):
+
+```
+Olá! Quero instalar o agente Animus no meu container Gradsky.
+
+Repositório: https://github.com/chiponga/Animus
+
+Sua missão:
+1. Clona o repo em /workspace/Animus (se ainda não existir).
+2. Lê o arquivo INSTALL.md que está na raiz e executa todos os passos.
+3. Me faz UMA pergunta de cada vez, espera eu responder antes da próxima.
+>>>>>>> e3f95ead324819de792d72b88e4ceac8037a42fb
 ```
 
 **3.** Responda as perguntas conforme o Claude pedir (nome do agente, dono, token Telegram do @BotFather, seu user_id do @userinfobot, e os opcionais OpenAI/ElevenLabs/Supabase).
 
 **4.** Em ~5 min o Claude vai dizer "agente no ar". Mande uma mensagem no Telegram pro seu bot.
 
+<<<<<<< HEAD
 > O roteiro que o Claude segue Ã© o [`INSTALL.md`](./INSTALL.md). Ele lÃª, instala dependÃªncias via `bootstrap.sh`, escreve o `.env`, sobe o bot via PM2 e valida.
 
 ---
 
 ## InstalaÃ§Ã£o manual (sem o Claude intermediando)
+=======
+> O roteiro que o Claude segue é o [`INSTALL.md`](./INSTALL.md). Ele lê, instala dependências via `bootstrap.sh`, escreve o `.env`, sobe o bot via PM2 e valida.
+
+---
+
+## Instalação manual (sem o Claude intermediando)
+>>>>>>> e3f95ead324819de792d72b88e4ceac8037a42fb
 
 Se preferir fazer no terminal direto:
 
@@ -58,6 +90,7 @@ O `install.sh` faz as mesmas perguntas que o Claude faria, escreve o `.env` e so
 
 ```
 [Telegram]
+<<<<<<< HEAD
    â”‚
    â–¼
 [bot.py â€” PM2, sempre vivo]    â† long polling getUpdates
@@ -74,6 +107,24 @@ O `install.sh` faz as mesmas perguntas que o Claude faria, escreve o `.env` e so
 ResiliÃªncia:
 - PM2 reinicia o bot se ele cair; use `pm2 save` apos alterar processos.
 - Cada `claude -p` Ã© stateless (session via flag `-c` se jÃ¡ houve sessÃ£o anterior).
+=======
+   │
+   ▼
+[bot.py — PM2, sempre vivo]    ← long polling getUpdates
+   │
+   ▼ subprocess STDIN
+[claude -p stream-json]        ← cada msg é uma invocação
+   │
+   ├── responde direto (text events) → Telegram
+   └── delega via Task tool → atlas / helena / aegis / titan / sentinel / victor / apollo / oracle / felipe
+                              ↓
+                          resposta consolidada → Telegram
+```
+
+Resiliência:
+- PM2 reinicia o bot se ele cair (`pm2 save && pm2 startup`).
+- Cada `claude -p` é stateless (session via flag `-c` se já houve sessão anterior).
+>>>>>>> e3f95ead324819de792d72b88e4ceac8037a42fb
 - Inbox/sent persistente em `animus-bot/{inbox,sent,state,logs}/` pra auditoria.
 - Volumes Gradsky (`/workspace`, `/root`, `/opt`) sobrevivem a restart/redeploy.
 
@@ -83,20 +134,36 @@ ResiliÃªncia:
 
 - **Bot externo Python** sempre vivo, independente do Claude Code.
 - **9 subagentes especialistas** em `.claude/agents/` (auto-descobertos).
+<<<<<<< HEAD
 - **59 skills** em `skills/` (auto-descobertas via symlink `.claude/skills/ â†’ ../skills/`).
 - **Ãudio bidirecional opcional** (Whisper entrada + ElevenLabs TTS saÃ­da).
 - **MemÃ³ria vetorial opcional** via Supabase Postgres + pgvector (DATABASE_URL no `.env`).
 - **Aprendizado contÃ­nuo** via `.learnings/` (LEARNINGS.md, ERRORS.md, FEATURE_REQUESTS.md).
+=======
+- **57 skills** em `skills/` (auto-descobertas via symlink `.claude/skills/ → ../skills/`).
+- **Áudio bidirecional opcional** (Whisper entrada + ElevenLabs TTS saída).
+- **Memória vetorial opcional** via Supabase Postgres + pgvector (DATABASE_URL no `.env`).
+- **Aprendizado contínuo** via `.learnings/` (LEARNINGS.md, ERRORS.md, FEATURE_REQUESTS.md).
+>>>>>>> e3f95ead324819de792d72b88e4ceac8037a42fb
 - **Marker `[[SEND_FILE:/path]]`** pra enviar arquivos como anexo no Telegram.
 
 ### Skills premium (todas opcionais, pulam silenciosamente sem a key)
 
+<<<<<<< HEAD
 | Skill | Key necessÃ¡ria | Onde pegar |
 |---|---|---|
 | `visual-gen` (imagem/vÃ­deo via Flux, Imagen, Kling, Veo) | `MUAPI_API_KEY` | https://muapi.ai (pay-per-generation) |
 | `reddit-icp-monitor`, `claude-md-generator`, `producthunt-launch-kit`, `meeting-brief-generator` | `GEMINI_API_KEY` | https://aistudio.google.com/app/apikey (grÃ¡tis) |
 | `cold-email-verifier` | `VALIDEMAIL_API_KEY` | https://validemail.co (50 grÃ¡tis) |
 | `meeting-brief-generator` | `TAVILY_API_KEY` | https://tavily.com (grÃ¡tis) |
+=======
+| Skill | Key necessária | Onde pegar |
+|---|---|---|
+| `visual-gen` (imagem/vídeo via Flux, Imagen, Kling, Veo) | `MUAPI_API_KEY` | https://muapi.ai (pay-per-generation) |
+| `reddit-icp-monitor`, `claude-md-generator`, `producthunt-launch-kit`, `meeting-brief-generator` | `GEMINI_API_KEY` | https://aistudio.google.com/app/apikey (grátis) |
+| `cold-email-verifier` | `VALIDEMAIL_API_KEY` | https://validemail.co (50 grátis) |
+| `meeting-brief-generator` | `TAVILY_API_KEY` | https://tavily.com (grátis) |
+>>>>>>> e3f95ead324819de792d72b88e4ceac8037a42fb
 | `hackernews-intel` | `HN_KEYWORDS` + (opcional) `SLACK_WEBHOOK` | configure direto no `.env` |
 | `reddit-icp-monitor` (modo OAuth, 60 RPM) | `REDDIT_CLIENT_*` | https://www.reddit.com/prefs/apps |
 
@@ -107,6 +174,7 @@ ResiliÃªncia:
 - Container Gradsky (Debian/Ubuntu, root, com /workspace).
 - Conta Claude Pro ou Max (CLI logada).
 - Bot Telegram criado no @BotFather.
+<<<<<<< HEAD
 - (Opcional) OpenAI key â€” Ã¡udio entrada.
 - (Opcional) ElevenLabs key â€” Ã¡udio saÃ­da.
 - (Opcional) Supabase DATABASE_URL â€” memÃ³ria vetorial.
@@ -114,16 +182,33 @@ ResiliÃªncia:
 ---
 
 ## Comandos Ãºteis (depois de instalado)
+=======
+- (Opcional) OpenAI key — áudio entrada.
+- (Opcional) ElevenLabs key — áudio saída.
+- (Opcional) Supabase DATABASE_URL — memória vetorial.
+
+---
+
+## Comandos úteis (depois de instalado)
+>>>>>>> e3f95ead324819de792d72b88e4ceac8037a42fb
 
 ```bash
 pm2 status                      # status do bot
 pm2 logs animus-bot             # logs ao vivo
 pm2 restart animus-bot          # restart
+<<<<<<< HEAD
 tail -f animus-bot/logs/bot.log # log da aplicaÃ§Ã£o
 cat .env                        # config atual (cuidado, contÃ©m secrets)
 ```
 
 Pra atualizar o repo (idempotente, com backup automÃ¡tico):
+=======
+tail -f animus-bot/logs/bot.log # log da aplicação
+cat .env                        # config atual (cuidado, contém secrets)
+```
+
+Pra atualizar o repo (idempotente, com backup automático):
+>>>>>>> e3f95ead324819de792d72b88e4ceac8037a42fb
 
 ```bash
 cd /workspace/Animus
@@ -140,6 +225,7 @@ bash scripts/rollback.sh
 
 ## Arquivos relevantes
 
+<<<<<<< HEAD
 | Arquivo | O quÃª |
 |---|---|
 | `SETUP-AGENTE.md` | Roteiro que o Claude segue no container Gradsky |
@@ -155,11 +241,27 @@ bash scripts/rollback.sh
 | `.claude/agents/` | 9 subagentes (atlas, helena, aegis, titan, sentinel, victor, apollo, oracle, felipe) |
 | `.claude/skills/` | Symlink â†’ `skills/` (auto-discovery) |
 | `skills/` | Skills do Animus, incluindo `animus-orchestration-os`, `gradsky-paas`, marketing, dev, vendas, growth e branding |
+=======
+| Arquivo | O quê |
+|---|---|
+| `SETUP-AGENTE.md` | Roteiro que o Claude segue (MODO A local + MODO B SSH remoto) |
+| `prompt-instalador.txt` | Texto que você cola no Claude pra iniciar |
+| `install.sh` | Wizard interativo CLI (alternativa ao fluxo via Claude) |
+| `bootstrap.sh` | Instala deps (Python, Node, PM2, Claude CLI, gh, pandas) |
+| `animus-bot/bot.py` | Daemon Telegram (PM2 roda esse) |
+| `.env.example` | Template do `.env` — copie pra `.env` e preencha |
+| `CLAUDE.md` | Personalidade + regras do agente (lida toda sessão) |
+| `CHANGELOG.md` | Histórico de versões |
+| `.claude/agents/` | 9 subagentes (atlas, helena, aegis, titan, sentinel, victor, apollo, oracle, felipe) |
+| `.claude/skills/` | Symlink → `skills/` (auto-discovery) |
+| `skills/` | 57 skills (marketing, dev, vendas, growth, branding, etc.) |
+>>>>>>> e3f95ead324819de792d72b88e4ceac8037a42fb
 | `scripts/` | `backup.sh`, `rollback.sh`, `upgrade.sh`, `validate.sh` |
 | `docs/TROUBLESHOOTING.md` | Fixes pros 20+ erros mais comuns |
 
 ---
 
+<<<<<<< HEAD
 ## Plataforma Oficial
 
 O Animus usa Claude Code como motor oficial. O fluxo suportado neste repositorio e:
@@ -169,3 +271,22 @@ Gradsky -> PM2 -> animus-bot/bot.py -> claude -p -> subagentes -> Telegram
 ```
 
 Nao ha runtime alternativo no setup principal. A documentacao, o instalador e os scripts de validacao devem permanecer alinhados a esse fluxo.
+=======
+## Por que Claude Code (não OpenClaw)?
+
+| Critério | Animus (Claude Code) | OpenClaw |
+|---|---|---|
+| Skills auto-discovery | ✅ nativo via `.claude/skills/` | precisa adapter |
+| LLMs alternativos (GLM, Codex) | ✗ só Claude | ✅ vantagem dele |
+| Já paga Claude Pro/Max? | ✅ sem custo extra | redundante |
+| Skill tool nativo | ✅ Claude carrega 57 skills no boot | manual |
+| Maturidade do CLI | ✅ 2.1.144 estável | menos testado |
+
+**Veredito**: se você já tem Claude Pro/Max, fica com Claude Code (este repo). OpenClaw só compensa pra quem quer rodar GLM 4.5 (Z.ai) ou GPT Codex 5.5 sem assinatura Anthropic.
+
+---
+
+## Notas legacy
+
+`INSTRUCAO-PARA-ALUNO.md`, `PASSO-A-PASSO.txt`, `launchd/` pertencem ao fluxo antigo (Mac local + launchd). Ficam preservados mas não são usados no fluxo Gradsky/VPS atual.
+>>>>>>> e3f95ead324819de792d72b88e4ceac8037a42fb

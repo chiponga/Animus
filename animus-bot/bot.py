@@ -1,11 +1,20 @@
 ﻿#!/usr/bin/env python3
 """
+<<<<<<< HEAD
 Animus Telegram Bot â€” daemon Python para container Gradsky.
 
 Invoca `claude -p` como subprocess para cada mensagem; sem sessao terminal persistente e sem arquivos manuais de resposta.
 Todos os paths e branding vÃªm do .env. Sem hardcode de pessoa/empresa.
 
 Vars obrigatÃ³rias no .env (ver .env.example):
+=======
+Animus Telegram Bot — daemon Python para container Gradsky.
+
+Invoca `claude -p` como subprocess para cada mensagem; sem tmux, sem inbox/outbox file-based.
+Todos os paths e branding vêm do .env. Sem hardcode de pessoa/empresa.
+
+Vars obrigatórias no .env (ver .env.example):
+>>>>>>> e3f95ead324819de792d72b88e4ceac8037a42fb
     AGENT_NAME, OWNER_NAME, OWNER_TELEGRAM_ID, TELEGRAM_BOT_TOKEN, ALLOWED_USERS
 """
 import os, re, sys, json, time, logging, random, signal, subprocess, threading, shutil
@@ -68,6 +77,7 @@ CLAUDE_BIN = cfg('CLAUDE_BIN') or shutil.which('claude') or '/root/.local/bin/cl
 API = f'https://api.telegram.org/bot{TOKEN}'
 
 SYSTEM_OVERRIDE = f"""\
+<<<<<<< HEAD
 CONTEXTO REAL DESTE AMBIENTE (sobrescreve qualquer instruÃ§Ã£o conflitante do CLAUDE.md):
 
 - Voce roda em um container Gradsky persistente com PM2 e Claude Code.
@@ -121,6 +131,46 @@ APRENDIZADO CONTÃNUO (skill self-improvement):
 - DEPOIS que o Chefe te corrigir, OU um comando seu falhar de jeito nÃ£o-Ã³bvio, OU o Chefe pedir algo que vocÃª nÃ£o soube fazer â€” registre 1 entrada curta no arquivo certo. Formato: `[ID-YYYYMMDD-NNN] <tÃ­tulo>\\n<o que aconteceu>\\n<o que fazer diferente>\\n`.
 - NUNCA logue secrets, tokens, env vars, ou trechos brutos de arquivos sensÃ­veis.
 - Quando uma liÃ§Ã£o se repetir (mesma correÃ§Ã£o 3+ vezes), promova pro CLAUDE.md do repo como regra permanente.
+=======
+CONTEXTO REAL DESTE AMBIENTE (sobrescreve qualquer instrução conflitante do CLAUDE.md):
+
+- Você roda em um container Gradsky persistente, NÃO numa VPS Ubuntu com systemd.
+- NÃO existem aqui: postgres local, tmux, /opt/animus-bot/, /etc/systemd/, porta 3007.
+- Cada mensagem do Chefe chega como subprocess STDIN (você é invocada por um bot Python externo via `claude -p`).
+- Sua resposta em STDOUT é o que vai pro Telegram. NÃO escreva em /opt/animus-bot/outbox/ — apenas responda em texto direto.
+- NÃO tente executar "protocolo de boot" do CLAUDE.md que dependa de psql local, porta 3007, ou paths /opt/. Ignore.
+- NÃO faça getUpdates do Telegram, NÃO acesse diretórios de outro bot. O bot externo já faz isso.
+- Trate {OWNER_NAME} (Telegram user_id {OWNER_TELEGRAM_ID}) como "Chefe".
+- Empresa: {COMPANY_NAME}. Produto: {PRODUCT_NAME}.
+- Mantenha sua personalidade {AGENT_NAME}: orquestradora, PT-BR, sem travessões, direta.
+
+PAPEL FIXO — VOCÊ É ORQUESTRADORA, NUNCA EXECUTORA (REGRA ABSOLUTA):
+- Você NÃO escreve código, NÃO faz design, NÃO testa, NÃO faz copy, NÃO faz infra, NÃO mexe em banco, NÃO faz análise. Você SEMPRE delega via Task tool pro subagente certo.
+- Os subagentes estão em {REPO_DIR}/.claude/agents/. Use a Task tool com subagent_type igual ao nome (atlas, helena, aegis, titan, sentinel, victor, apollo, oracle, felipe).
+- Mapping OBRIGATÓRIO:
+    código / backend / frontend / API / debug / arquitetura / refactor -> atlas
+    UI / UX / HTML / CSS / design / landing / responsivo -> helena
+    segurança / OWASP / auth / hardening / threat model / secrets -> aegis
+    DevOps / deploy / Docker / CI/CD / PM2 / proxy / SSL / logs -> titan
+    QA / testes / validação / regressão / edge cases -> sentinel
+    copy / VSL / oferta / CTA / headline / script -> victor
+    SDR / prospecção / CRM / outreach / Instagram / WhatsApp -> apollo
+    BI / analytics / métricas / mercado / estratégia / decisão -> oracle
+    fullstack senior + Gradsky / produto / observabilidade -> felipe
+- Exemplo: "faz uma calculadora HTML" = delega pra atlas (código) ou helena (UI). NÃO faça você direto.
+- Tarefas paralelas: dispara múltiplos Task na MESMA resposta pra rodar em paralelo (ex: atlas faz o JS enquanto helena faz o CSS).
+- NÃO escreva "Delegando pro X" antes do Task — o bot avisa o Chefe automaticamente quando você invoca um subagente. Você só dispara o Task.
+- Suas respostas chegam no Telegram em tempo real, mensagem por mensagem. Em vez de mandar um bloco gigante no final, escreva em pedaços naturais.
+- Depois que o(s) subagente(s) retornar(em), você consolida e responde o Chefe.
+- EXCEÇÃO única — pode responder direto SEM delegar APENAS em: cumprimento, confirmação curta, pergunta sobre status do próprio time, ou dúvida factual de 1 frase.
+
+APRENDIZADO CONTÍNUO (skill self-improvement):
+- Existe a pasta `{REPO_DIR}/.learnings/` com 3 arquivos: LEARNINGS.md, ERRORS.md, FEATURE_REQUESTS.md.
+- ANTES de responder a algo técnico/complexo, dê um `grep` rápido nesses arquivos pra ver se já existe lição relevante.
+- DEPOIS que o Chefe te corrigir, OU um comando seu falhar de jeito não-óbvio, OU o Chefe pedir algo que você não soube fazer — registre 1 entrada curta no arquivo certo. Formato: `[ID-YYYYMMDD-NNN] <título>\\n<o que aconteceu>\\n<o que fazer diferente>\\n`.
+- NUNCA logue secrets, tokens, env vars, ou trechos brutos de arquivos sensíveis.
+- Quando uma lição se repetir (mesma correção 3+ vezes), promova pro CLAUDE.md do repo como regra permanente.
+>>>>>>> e3f95ead324819de792d72b88e4ceac8037a42fb
 
 ENVIO DE ARQUIVOS PELO TELEGRAM:
 - Pra entregar um arquivo no chat, inclua na sua resposta uma linha com o marcador:
@@ -129,23 +179,39 @@ ENVIO DE ARQUIVOS PELO TELEGRAM:
     [[SEND_FILE:/caminho/absoluto/arquivo.ext|legenda curta aqui]]
 - O bot remove o marcador do texto e envia o arquivo como anexo. Limite: 50MB por arquivo.
 
+<<<<<<< HEAD
 PROTOCOLO DE ENTREGA DE PROJETO (OBRIGATÃ“RIO):
 - SEMPRE que terminar de construir um projeto multi-arquivo, PERGUNTE ao Chefe como ele quer receber:
     1) ZIP no Telegram
     2) RepositÃ³rio no GitHub
 - NÃ£o assuma. Pergunta curta.
+=======
+PROTOCOLO DE ENTREGA DE PROJETO (OBRIGATÓRIO):
+- SEMPRE que terminar de construir um projeto multi-arquivo, PERGUNTE ao Chefe como ele quer receber:
+    1) ZIP no Telegram
+    2) Repositório no GitHub
+- Não assuma. Pergunta curta.
+>>>>>>> e3f95ead324819de792d72b88e4ceac8037a42fb
 
 Quando o Chefe escolher (1) ZIP:
 - Zipe excluindo lixo: `cd <raiz> && zip -r /tmp/<nome>.zip . -x 'node_modules/*' '.git/*' 'dist/*' '.next/*' '__pycache__/*' '*.pyc' '.venv/*' 'venv/*' '.env'`
 - Entregue com o marcador: `[[SEND_FILE:/tmp/<nome>.zip|<nome> sem deps]]`
 
 Quando o Chefe escolher (2) GITHUB:
+<<<<<<< HEAD
 - Use `gh` (jÃ¡ autenticado). Comandos:
+=======
+- Use `gh` (já autenticado). Comandos:
+>>>>>>> e3f95ead324819de792d72b88e4ceac8037a42fb
     cd <raiz do projeto>
     git init -q && git add -A && git commit -q -m "initial commit by {AGENT_NAME}"
     gh repo create <nome-do-projeto> --private --source=. --remote=origin --push
 - Capture a URL (`gh repo view --json url -q .url`) e responda no chat com o link.
+<<<<<<< HEAD
 - Se `gh auth status` falhar, AVISE o Chefe: "GitHub nÃ£o autenticado â€” rode `gh auth login` no terminal do container."
+=======
+- Se `gh auth status` falhar, AVISE o Chefe: "GitHub não autenticado — rode `gh auth login` no terminal do container."
+>>>>>>> e3f95ead324819de792d72b88e4ceac8037a42fb
 """
 
 for d in (INBOX, SENT, STATE, LOGS):
@@ -165,7 +231,11 @@ running = True
 
 def signal_handler(sig, _):
     global running
+<<<<<<< HEAD
     log.info(f'signal {sig} â€” parando')
+=======
+    log.info(f'signal {sig} — parando')
+>>>>>>> e3f95ead324819de792d72b88e4ceac8037a42fb
     running = False
 
 
@@ -181,6 +251,90 @@ def get_offset():
 def save_offset(uid):
     (STATE / 'last-update-id.txt').write_text(str(uid))
 
+<<<<<<< HEAD
+=======
+
+def send_message(chat_id, text, reply_to=None):
+    if len(text) > 4000:
+        text = text[:3990] + '…'
+    payload = {'chat_id': chat_id, 'text': text}
+    if reply_to:
+        payload['reply_parameters'] = {'message_id': int(reply_to)}
+    try:
+        r = requests.post(f'{API}/sendMessage', json=payload, timeout=15)
+        if r.status_code == 200 and r.json().get('ok'):
+            return True
+        log.warning(f'sendMessage falhou: {r.status_code} {r.text[:200]}')
+    except Exception as e:
+        log.error(f'sendMessage exception: {e}')
+    return False
+
+
+IMMEDIATE_ACKS = [
+    "Anotado, chefe. Chamando o time.",
+    "Boa. Deixa comigo, vou distribuir.",
+    "Pegou. Já vou organizar o pessoal.",
+    "Entendi. Montando a equipe agora.",
+    "Recebido. Vou acionar os agentes certos.",
+    "Tranquilo, chefe. Time entrando em ação.",
+    "Saquei. Já chamo o pessoal certo pra isso.",
+]
+
+AGENT_LABEL = {
+    'atlas': 'Atlas (eng)',
+    'helena': 'Helena (UI/UX)',
+    'aegis': 'Aegis (security)',
+    'titan': 'Titan (DevOps)',
+    'sentinel': 'Sentinel (QA)',
+    'victor': 'Victor (copy)',
+    'apollo': 'Apollo (growth)',
+    'oracle': 'Oracle (data)',
+    'felipe': 'Felipe (fullstack)',
+}
+
+SEND_FILE_RE = re.compile(r'\[\[SEND_FILE:([^\]|\n]+?)(?:\|([^\]\n]*))?\]\]')
+
+
+def extract_files(text):
+    files = []
+
+    def repl(m):
+        path = m.group(1).strip()
+        caption = (m.group(2) or '').strip() or None
+        files.append((path, caption))
+        return ''
+
+    cleaned = SEND_FILE_RE.sub(repl, text)
+    cleaned = re.sub(r'\n{3,}', '\n\n', cleaned).strip()
+    return cleaned, files
+
+
+def send_document(chat_id, file_path, caption=None, reply_to=None):
+    try:
+        p = Path(file_path)
+        if not p.exists() or not p.is_file():
+            log.warning(f'send_document: arquivo nao existe: {file_path}')
+            return False
+        if p.stat().st_size > 50 * 1024 * 1024:
+            log.warning(f'send_document: arquivo > 50MB: {file_path}')
+            return False
+        data = {'chat_id': chat_id}
+        if caption:
+            data['caption'] = caption[:1024]
+        if reply_to:
+            data['reply_parameters'] = json.dumps({'message_id': int(reply_to)})
+        with p.open('rb') as fh:
+            r = requests.post(f'{API}/sendDocument', data=data,
+                              files={'document': (p.name, fh)}, timeout=60)
+        if r.status_code == 200 and r.json().get('ok'):
+            log.info(f'sendDocument ok: {file_path}')
+            return True
+        log.warning(f'sendDocument falhou: {r.status_code} {r.text[:200]}')
+    except Exception as e:
+        log.error(f'sendDocument exception: {e}')
+    return False
+
+>>>>>>> e3f95ead324819de792d72b88e4ceac8037a42fb
 
 def send_message(chat_id, text, reply_to=None):
     if len(text) > 4000:
@@ -395,12 +549,20 @@ def stream_agent(text, user_name, msg_id, chat_id):
             stderr_snip = (proc.stderr.read() if proc.stderr else '')[:300]
             log.error(f'claude rc={proc.returncode} stderr={stderr_snip}')
             if not emitted_any:
+<<<<<<< HEAD
                 send_message(chat_id, f'(erro interno do agente â€” rc={proc.returncode})', reply_to=msg_id)
+=======
+                send_message(chat_id, f'(erro interno do agente — rc={proc.returncode})', reply_to=msg_id)
+>>>>>>> e3f95ead324819de792d72b88e4ceac8037a42fb
 
         if final_ok:
             SESSION_MARKER.touch()
         elif not emitted_any:
+<<<<<<< HEAD
             send_message(chat_id, f'(timeout â€” mais de {CLAUDE_TIMEOUT}s sem resposta final)', reply_to=msg_id)
+=======
+            send_message(chat_id, f'(timeout — mais de {CLAUDE_TIMEOUT}s sem resposta final)', reply_to=msg_id)
+>>>>>>> e3f95ead324819de792d72b88e4ceac8037a42fb
 
         return final_ok
 
@@ -433,7 +595,11 @@ def handle_update(update):
     }
     (INBOX / f'{msg_id}.json').write_text(json.dumps(inbox_data, indent=2, ensure_ascii=False))
 
+<<<<<<< HEAD
     react(chat_id, msg_id, 'ðŸ‘€')
+=======
+    react(chat_id, msg_id, '👀')
+>>>>>>> e3f95ead324819de792d72b88e4ceac8037a42fb
     start_typing(chat_id, duration=CLAUDE_TIMEOUT + 30)
 
     sent_ok = stream_agent(text, user_name, msg_id, chat_id)

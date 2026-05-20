@@ -115,7 +115,12 @@ fi
 # 6. Restart bot
 step "4/5 Reiniciando bot..."
 if command -v pm2 >/dev/null 2>&1; then
+<<<<<<< HEAD
   pm2 restart animus-bot --update-env 2>/dev/null \
+=======
+  pm2 restart animus-telegram-bot --update-env 2>/dev/null \
+    || pm2 restart animus-bot --update-env 2>/dev/null \
+>>>>>>> e3f95ead324819de792d72b88e4ceac8037a42fb
     || warn "Bot não estava no PM2 — rode bash install.sh"
   sleep 2
 fi

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 Quero instalar meu agente Animus + Telegram.
 Repositorio publico: https://github.com/chiponga/Animus.git
 
@@ -31,3 +32,36 @@ Quando terminar:
 
 - pm2 status deve mostrar animus-bot online.
 - O bot deve responder no Telegram.
+=======
+Quero instalar meu agente Animus + Telegram. Repositório público: https://github.com/chiponga/Animus
+
+Sua missão (autônoma — só me pergunta quando precisar de info que só eu tenho):
+
+1. Lê o arquivo SETUP-AGENTE.md da raiz do repo e segue do início ao fim.
+2. Pergunta primeiro: "Você vai rodar aqui mesmo (container/VPS já acessada) ou eu faço SSH numa VPS Ubuntu nova?"
+3. Conforme o caminho, segue MODO A (local) ou MODO B (SSH remoto) do SETUP.
+4. Roda bootstrap.sh, install.sh, valida com scripts/validate.sh, e me confirma quando o bot estiver online no Telegram.
+
+Vou te dar conforme você for pedindo:
+- (Se MODO B) IP, usuário e senha da VPS
+- Nome do agente (ex: Animus, Atlas, Lúcia)
+- Como você deve me chamar (Chefe, etc.)
+- Token do bot Telegram (eu crio no @BotFather quando você pedir)
+- Meu user_id Telegram (eu pego no @userinfobot quando você pedir)
+- (Opcional) DATABASE_URL Supabase pra memória persistente
+- (Opcional) Chaves: OPENAI (Whisper), ELEVENLABS (TTS), MUAPI (imagem/vídeo), GEMINI (4 skills, grátis), VALIDEMAIL, TAVILY
+
+REGRAS:
+- Faz UMA pergunta de cada vez. Não dispara várias.
+- Pula qualquer chave opcional que eu não tiver — a skill correspondente fica dormente sem quebrar nada.
+- O motor é Claude Code (você mesmo). Se claude não tá autenticado, roda `claude /login` e me dá a URL.
+- No final, roda `bash scripts/validate.sh` e me confirma que os 8 checks passaram.
+
+Quando terminar:
+- pm2 status deve mostrar bot online
+- Manda uma mensagem no Telegram pro bot e me confirma que ele respondeu
+
+Caso algo quebre durante o setup:
+- bash scripts/rollback.sh restaura o último estado funcional
+- docs/TROUBLESHOOTING.md tem fix pros 20+ erros mais comuns
+>>>>>>> e3f95ead324819de792d72b88e4ceac8037a42fb

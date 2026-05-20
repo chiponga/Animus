@@ -1,6 +1,12 @@
+<<<<<<< HEAD
 ﻿# =========================================================
 # Animus â€” .gitignore
 # MantÃ©m o repo focado em cÃ³digo/config; runtime data fora.
+=======
+# =========================================================
+# Animus — .gitignore
+# Mantém o repo focado em código/config; runtime data fora.
+>>>>>>> e3f95ead324819de792d72b88e4ceac8037a42fb
 # =========================================================
 
 # Secrets (NUNCA commitar)
@@ -10,18 +16,32 @@
 *.pem
 *.key
 
+<<<<<<< HEAD
 # Runtime do bot Telegram (cada instalaÃ§Ã£o gera o seu)
 animus-bot/audio/
 animus-bot/inbox/
+=======
+# Runtime do bot Telegram (cada instalação gera o seu)
+animus-bot/audio/
+animus-bot/inbox/
+animus-bot/outbox/
+>>>>>>> e3f95ead324819de792d72b88e4ceac8037a42fb
 animus-bot/processed/
 animus-bot/sent/
 animus-bot/state/
 animus-bot/logs/
 animus-bot/__pycache__/
 
+<<<<<<< HEAD
 # Pastas Ã³rfÃ£s/legacy de runtime
 audio/
 inbox/
+=======
+# Pastas órfãs/legacy de runtime
+audio/
+inbox/
+outbox/
+>>>>>>> e3f95ead324819de792d72b88e4ceac8037a42fb
 processed/
 sent/
 state/
@@ -59,7 +79,11 @@ Thumbs.db
 # Projetos auxiliares fora do escopo do Animus
 fluxo-plus/
 
+<<<<<<< HEAD
 # WIP pessoal / projetos de cliente (nÃ£o versionar no repo pÃºblico)
+=======
+# WIP pessoal / projetos de cliente (não versionar no repo público)
+>>>>>>> e3f95ead324819de792d72b88e4ceac8037a42fb
 .agents/
 brasil-surfers-landing/
 
@@ -67,7 +91,11 @@ brasil-surfers-landing/
 calculadora.html
 landing-financeiro.html
 
+<<<<<<< HEAD
 # MemÃ³ria local (cada instalaÃ§Ã£o gera as suas notas)
+=======
+# Memória local (cada instalação gera as suas notas)
+>>>>>>> e3f95ead324819de792d72b88e4ceac8037a42fb
 memory/
 .learnings/*.local.md
 skills/ui-styling/scripts/.coverage
@@ -78,4 +106,7 @@ skills/hackernews-intel/state.db
 skills/hackernews-intel/*.db
 skills/*/state.db
 skills/*/data.db
+<<<<<<< HEAD
 
+=======
+>>>>>>> e3f95ead324819de792d72b88e4ceac8037a42fb
