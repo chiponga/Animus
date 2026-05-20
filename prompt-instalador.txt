@@ -1,15 +1,33 @@
-Quero instalar meu agente autonomo Claude + Telegram numa VPS Ubuntu.
+Quero instalar meu agente Animus + Telegram.
+Repositorio publico: https://github.com/chiponga/Animus.git
 
-Acessa o repositorio publico https://github.com/denderson2013-bot/agente-claude-telegram-setup-alunos-denderson
-e segue o passo a passo de SETUP-AGENTE.md.
+Sua missao:
 
-Vou te dar as informacoes conforme voce pedir:
-- IP, usuario e senha da VPS
-- Nome do meu agente (ex: Animus, Atlas, Nexus)
-- Meu nome
-- Token do bot Telegram (eu crio no @BotFather quando voce pedir)
-- Meu user_id Telegram (eu pego no @userinfobot quando voce pedir)
-- (Opcional) Chave OpenAI pra transcrever audios
-- (Opcional) Chave ElevenLabs pra voz feminina
+1. Confirma que estou em um container Gradsky com /workspace persistente.
+2. Clona ou atualiza o repositorio em /workspace/Animus.
+3. Le o arquivo INSTALL.md da raiz do repo e segue do inicio ao fim.
+4. Faz UMA pergunta de cada vez.
+5. Roda bootstrap.sh, install.sh e valida com scripts/validate.sh.
+6. Confirma quando o bot estiver online no Telegram.
 
-Faz SSH na VPS por mim, instala o ambiente todo (bootstrap.sh), configura o agente, sobe systemd, e me confirma quando estiver no ar conversando comigo no Telegram.
+Vou te dar conforme voce for pedindo:
+
+- Nome do agente (ex: Animus).
+- Como voce deve me chamar.
+- Token do bot Telegram.
+- Meu user_id Telegram.
+- Opcional: DATABASE_URL Supabase.
+- Opcional: OPENAI_API_KEY, ELEVENLABS_API_KEY, MUAPI_API_KEY, GEMINI_API_KEY, VALIDEMAIL_API_KEY, TAVILY_API_KEY.
+
+Regras:
+
+- Nao ecoe secrets no chat.
+- Se uma chave opcional estiver vazia, pule sem quebrar.
+- O motor oficial e Claude Code.
+- O processo oficial e PM2 com nome animus-bot.
+- No final, rode bash scripts/validate.sh.
+
+Quando terminar:
+
+- pm2 status deve mostrar animus-bot online.
+- O bot deve responder no Telegram.

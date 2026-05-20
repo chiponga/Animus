@@ -1,4 +1,4 @@
-# Decision Tree
+﻿# Decision Tree
 
 ## Escolher stack
 
@@ -129,16 +129,16 @@ Bun:
 Node:
 - Compatibilidade maxima, ecossistema maduro, ambientes restritivos.
 
-## Serverless vs VPS
+## Serverless vs Gradsky/PaaS
 
 Serverless:
 - Trafego variavel.
 - Operacao reduzida.
 - Jobs curtos.
 
-VPS:
+Gradsky/PaaS:
 - Long-running.
-- Docker/systemd.
+- Docker/PM2.
 - Custo previsivel.
 - Controle de rede/runtime.
 

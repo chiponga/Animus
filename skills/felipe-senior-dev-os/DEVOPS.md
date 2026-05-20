@@ -1,10 +1,10 @@
-# DevOps
+﻿# DevOps
 
 ## Principio
 
-Operacao boa e previsivel, auditavel e reversivel. VPS simples pode ser excelente se tiver usuarios corretos, firewall, logs, backup, SSL e deploy disciplinado.
+Operacao boa e previsivel, auditavel e reversivel. Gradsky/containers podem ser excelentes quando ha PM2, logs, backup, SSL e deploy disciplinado.
 
-## VPS Ubuntu
+## Gradsky / Ubuntu container
 
 Checklist inicial:
 - [ ] Usuario nao-root para app.
@@ -15,7 +15,7 @@ Checklist inicial:
 - [ ] Disco monitorado.
 - [ ] Backups configurados.
 
-## systemd
+## PM2
 
 Unit file minimo:
 ```ini

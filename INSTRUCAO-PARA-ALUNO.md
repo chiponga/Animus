@@ -1,170 +1,121 @@
-# Como instalar seu agente Claude + Telegram em 5 minutos (sem mexer em terminal)
+# Como instalar o Animus no Gradsky
 
-> Caminho recomendado pra alunos que NAO querem ficar copiando comandos manualmente na VPS.
-> Voce vai abrir o Claude Code no seu computador, colar UM prompt, responder algumas perguntas, e o Claude faz o resto pra voce (SSH na VPS, instalacao, configuracao, deploy).
->
-> Se voce e desenvolvedor e prefere fazer manualmente, veja o `README.md` (caminho avancado).
+Este e o caminho recomendado para instalar o Animus com Telegram, Claude Code e PM2.
 
----
+Repositorio oficial: https://github.com/chiponga/Animus.git
 
-## Passo 1 - Compre uma VPS Ubuntu 22.04 (ou superior)
+## O que voce vai precisar
 
-Recomendacoes:
+- Container Gradsky persistente com `/workspace`.
+- Conta Claude Pro ou Max.
+- Claude Code autenticado no container.
+- Bot Telegram criado no @BotFather.
+- Seu user_id Telegram obtido no @userinfobot.
+- Opcional: chaves OpenAI, ElevenLabs, Supabase, Muapi, Gemini, ValidEmail e Tavily.
 
-| Provedor | Plano sugerido | Custo aprox |
-|---|---|---|
-| **Hostinger** | KVM 4 (4GB RAM, 2 vCPU) | R$30-60/mes |
-| **Hetzner** | CX22 (4GB RAM, 2 vCPU) | EUR 4-6/mes |
-| **DigitalOcean** | Basic 4GB | US$24/mes |
-| **Vultr** | Cloud Compute 4GB | US$24/mes |
+## Passo 1 - Criar o bot Telegram
 
-Importante na hora de comprar:
-- Sistema operacional: **Ubuntu 22.04** (ou 24.04)
-- Mínimo: **4 GB RAM** (8 GB recomendado para subagentes paralelos)
-- Disco: **mínimo 50 GB**
-- Localizacao: qualquer uma. Brasil (uma regiao brasileira) reduz latencia, mas EUA/Europa funciona igual.
+1. Abra o Telegram.
+2. Procure `@BotFather`.
+3. Envie `/newbot`.
+4. Escolha nome e username.
+5. Copie o token.
 
----
+Para descobrir seu user_id:
 
-## Passo 2 - Anote os dados de acesso da VPS
+1. Procure `@userinfobot`.
+2. Envie `/start`.
+3. Copie o numero retornado.
 
-Quando a VPS estiver pronta, o provedor te manda:
+## Passo 2 - Abrir Claude Code no Gradsky
 
-- **IP publico** (ex: `123.45.67.89`)
-- **Usuario** (geralmente `root`)
-- **Senha** (string aleatoria)
+No container Gradsky:
 
-Anote num lugar seguro. O Claude vai te perguntar isso depois.
-
----
-
-## Passo 3 - Abra o Claude Code no seu computador
-
-Voce pode usar:
-
-- **Site oficial**: [claude.com/code](https://claude.com/code)
-- **Extensao VS Code**: instale "Claude Code" no marketplace do VS Code
-- **Cursor IDE**: ja vem com integracao Claude
-
-Faz login com sua conta Claude Pro ou Max.
-
----
-
-## Passo 4 - Cole o prompt magico dentro do Claude
-
-Copie o prompt abaixo e cole na conversa do Claude:
-
-```
-Quero instalar meu agente autonomo Claude + Telegram numa VPS Ubuntu.
-
-Acessa o repositorio publico https://github.com/denderson2013-bot/agente-claude-telegram-setup-alunos-denderson 
-e segue o passo a passo de SETUP-AGENTE.md.
-
-Vou te dar as informacoes conforme voce pedir:
-- IP, usuario e senha da VPS
-- Nome do meu agente (ex: Animus, Atlas, Nexus)
-- Meu nome
-- Token do bot Telegram (eu crio no @BotFather quando voce pedir)
-- Meu user_id Telegram (eu pego no @userinfobot quando voce pedir)
-- (Opcional) Chave OpenAI pra transcrever audios
-- (Opcional) Chave ElevenLabs pra voz feminina
-
-Faz SSH na VPS por mim, instala o ambiente todo (bootstrap.sh), configura o agente, sobe systemd, e me confirma quando estiver no ar conversando comigo no Telegram.
+```bash
+cd /workspace
+claude
 ```
 
-> Tambem disponivel em [`prompt-instalador.txt`](./prompt-instalador.txt) pra copiar facil.
+Se o Claude ainda nao estiver logado, rode:
 
----
+```bash
+claude /login
+```
 
-## Passo 5 - Responda as perguntas do Claude (calmamente, uma por vez)
+## Passo 3 - Pedir a instalacao
 
-O Claude vai te perguntar:
+Cole este prompt no Claude Code:
 
-1. **IP da VPS** -> cole o IP que o provedor te deu
-2. **Usuario** -> geralmente `root`
-3. **Senha** -> a senha que o provedor te enviou
-4. **Nome do agente** -> escolha um nome (ex: `Animus`, `Atlas`, `Nexus`, `Orion`)
-5. **Seu nome** -> seu nome real (vai aparecer nos logs)
-6. **Token do bot Telegram** -> nesse momento o Claude pode te guiar:
-   - Abra o Telegram
-   - Procure `@BotFather`
-   - Mande `/newbot`
-   - Escolha um nome (ex: `Bia AI`) e username (ex: `bia_ai_bot`)
-   - Copie o token que aparece (ex: `1234567890:AAH...`)
-   - Cole no Claude
-7. **Seu user_id no Telegram** -> o Claude pode te guiar:
-   - No Telegram, procure `@userinfobot`
-   - Mande `/start`
-   - Copie o numero (ex: `123456789`)
-   - Cole no Claude
-8. **(Opcional) Chave OpenAI** -> [platform.openai.com/api-keys](https://platform.openai.com/api-keys). Permite que o agente entenda audios que voce mandar.
-9. **(Opcional) Chave ElevenLabs** -> [elevenlabs.io/profile](https://elevenlabs.io/profile). Permite voz feminina natural nas respostas em audio.
+```text
+Quero instalar o Animus no meu container Gradsky.
 
-Calma. Uma resposta por vez. O Claude espera voce.
+Repositorio: https://github.com/chiponga/Animus.git
 
----
+Leia o INSTALL.md da raiz, execute o setup, faca uma pergunta de cada vez e no final valide com scripts/validate.sh.
+```
 
-## Passo 6 - Aguarde o Claude instalar tudo
+## Passo 4 - Responder as perguntas
 
-Enquanto o Claude trabalha, ele vai:
+O instalador vai pedir:
 
-1. Fazer SSH na sua VPS automaticamente
-2. Rodar o `bootstrap.sh` (instala Node, Python, Postgres, Caddy, etc) — leva ~5-10 min
-3. Pedir pra voce abrir um link no navegador pra logar na sua conta Claude (so essa parte voce faz)
-4. Rodar a configuracao completa do agente
-5. Subir o systemd (servico que roda 24/7)
-6. Testar a conexao com o Telegram
+1. Nome do agente.
+2. Como o agente deve chamar voce.
+3. Empresa/produto.
+4. Token do Telegram.
+5. Seu user_id Telegram.
+6. Chaves opcionais.
 
-Quando ele falar **"agente no ar"**, abra o Telegram e mande um "oi" pro seu agente. Ele responde.
+Se nao tiver alguma chave opcional, deixe em branco.
 
----
+## Passo 5 - Validar
 
-## Pronto. Como usar agora
+Quando terminar, rode:
 
-- **Conversar**: abra o chat do bot que voce criou (`@bia_ai_bot` por exemplo) e converse normalmente
-- **Mandar audio**: o bot transcreve via Whisper (se voce configurou OpenAI) e responde
-- **Receber audio**: peca pro agente "responde em audio" se voce configurou ElevenLabs
-- **Tarefas longas**: peca coisas tipo "pesquisa X na internet", "cria um codigo Y", "agenda Z" — o agente delega pros subagentes especializados (Atlas, Helena, Victor, Sentinel, Titan, Apollo e Oracle)
+```bash
+bash scripts/validate.sh
+```
 
----
+O esperado:
 
-## Por que assim (entenda o que rola por baixo)
+- `animus-bot` online no PM2.
+- Claude Code autenticado.
+- `.env` seguro.
+- `.claude/skills` apontando para `skills/`.
+- Telegram conectado.
 
-O **Claude Code** que voce abriu no seu PC e mais que um chat. Ele e um agente que sabe:
-- Acessar VPS via SSH (igual um dev faria)
-- Rodar comandos shell
-- Editar arquivos remotos
-- Criar e configurar servicos systemd
-- Fazer push pra GitHub
-- Configurar DNS no Cloudflare
+## Passo 6 - Testar no Telegram
 
-Quando voce cola o prompt magico, ele vira o **instalador**. Voce so precisa fornecer os dados que so voce sabe (IP, senha, tokens). Ele faz o trabalho braco.
+Envie uma mensagem para o bot:
 
-Depois que tudo subir, o **agente na VPS** assume. O Claude Code do seu PC pode ate fechar. O agente vive sozinho na VPS, conversando com voce 24/7 via Telegram.
+```text
+oi
+```
 
----
+Depois teste comandos mais completos:
 
-## Problemas comuns
+```text
+Animus, use Felipe e revise esse projeto para producao.
+Animus, peca para Victor criar uma copy de landing page.
+Animus, peca para Aegis auditar a seguranca desse backend.
+Animus, peca para Titan validar o deploy.
+Animus, coordene Atlas, Helena e Sentinel para criar uma feature.
+```
 
-**Claude diz que nao consegue fazer SSH:**
-Confirme: IP correto, usuario `root`, senha correta. Se a VPS for nova, espere 2-3 min pra ela bootar antes de tentar.
+## Comandos uteis
 
-**O bootstrap demora muito:**
-Normal. Instalar Node, Postgres, Caddy etc pode levar ate 10 min em VPS lenta. Deixe rodar.
-
-**Claude nao consegue logar na conta Claude na VPS:**
-A autenticacao precisa de browser. O Claude vai te pedir pra **copiar uma URL** e abrir no navegador do **seu PC**. Voce loga, copia o codigo de volta, cola no Claude. Ele continua.
-
-**Telegram nao responde depois de tudo pronto:**
-Cheque: o token do `@BotFather` esta certo? O `user_id` do `@userinfobot` esta certo? Voce ja mandou `/start` pro bot na primeira vez?
-
-**Quero parar/reiniciar o agente:**
-Peca pro Claude do seu PC: "faz SSH na minha VPS e reinicia o servico do agente Bia". Ele faz.
-
----
+```bash
+pm2 status
+pm2 logs animus-bot
+pm2 restart animus-bot
+tail -f animus-bot/logs/bot.log
+bash scripts/validate.sh
+bash scripts/backup.sh
+bash scripts/upgrade.sh
+bash scripts/rollback.sh
+```
 
 ## Suporte
 
-Issues: https://github.com/denderson2013-bot/agente-claude-telegram-setup-alunos-denderson/issues
+Use sempre o repositorio oficial:
 
-Bom uso. Bem-vindo ao mundo dos agentes autonomos.
+https://github.com/chiponga/Animus.git

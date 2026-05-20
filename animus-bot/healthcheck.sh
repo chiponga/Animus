@@ -1,59 +1,54 @@
-#!/bin/bash
-# Health-check da arquitetura Animus v3 (bot externo + claude code)
-# Roda a cada 2 min via cron. Alerta no Telegram do Chefe se algo crashar.
-# Auto-restart de servicos parados.
+#!/usr/bin/env bash
+set -euo pipefail
 
-LOG=/opt/animus-bot/logs/healthcheck.log
-TOKEN=$(grep ^TELEGRAM_BOT_TOKEN= /opt/animus-bot/.env | cut -d= -f2-)
-CHAT_ID=$(grep ^ALLOWED_USERS= /opt/animus-bot/.env | cut -d= -f2- | cut -d, -f1)
-ALERT_FILE=/tmp/animus-health-last-alert
-NOW=$(date '+%Y-%m-%d %H:%M:%S')
+# Healthcheck do Animus em Gradsky + PM2 + Claude Code.
+# Pode ser chamado manualmente ou por automacao do container.
 
-log() { echo "[$NOW] $*" >> "$LOG"; }
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
+ENV_FILE="${ANIMUS_ENV_FILE:-$REPO_DIR/.env}"
+LOG_DIR="$SCRIPT_DIR/logs"
+LOG="$LOG_DIR/healthcheck.log"
+BOT_NAME="${ANIMUS_PM2_NAME:-animus-bot}"
 
-alert() {
-    local msg="$1"
-    # Throttle: nao manda mesmo alerta mais de 1x a cada 5 minutos
-    local key=$(echo "$msg" | md5sum | cut -c1-16)
-    local last=$(grep "^$key:" "$ALERT_FILE" 2>/dev/null | cut -d: -f2)
-    local now_ts=$(date +%s)
-    if [ -n "$last" ] && [ $((now_ts - last)) -lt 300 ]; then
-        log "alert SUPPRESSED (throttled): $msg"
-        return
-    fi
-    grep -v "^$key:" "$ALERT_FILE" 2>/dev/null > "${ALERT_FILE}.tmp" || true
-    echo "$key:$now_ts" >> "${ALERT_FILE}.tmp"
-    mv "${ALERT_FILE}.tmp" "$ALERT_FILE"
+mkdir -p "$LOG_DIR"
 
-    log "ALERT: $msg"
-    curl -s -X POST "https://api.telegram.org/bot${TOKEN}/sendMessage" \
-        -d "chat_id=${CHAT_ID}" \
-        --data-urlencode "text=⚠️ ANIMUS HEALTH ALERT: ${msg}" \
-        > /dev/null 2>&1 || true
+now() { date '+%Y-%m-%d %H:%M:%S'; }
+log() { echo "[$(now)] $*" | tee -a "$LOG" >/dev/null; }
+
+fail() {
+  log "FAIL - $*"
+  exit 1
 }
 
-# Check 1: bot Python esta rodando?
-if ! systemctl is-active --quiet animus-telegram-bot; then
-    alert "Bot Python parado. Reiniciando..."
-    systemctl restart animus-telegram-bot
+cd "$REPO_DIR"
+
+[ -f "$ENV_FILE" ] || fail ".env nao encontrado em $ENV_FILE"
+command -v pm2 >/dev/null || fail "pm2 nao encontrado"
+command -v claude >/dev/null || fail "claude CLI nao encontrado"
+
+if ! pm2 describe "$BOT_NAME" >/dev/null 2>&1; then
+  log "PM2 nao conhece $BOT_NAME. Tentando iniciar."
+  pm2 start animus-bot/bot.py \
+    --name "$BOT_NAME" \
+    --interpreter python3 \
+    --time \
+    --log animus-bot/logs/pm2.log \
+    --merge-logs >/dev/null
+  pm2 save >/dev/null || true
 fi
 
-# Check 2: Animus Claude Code esta rodando?
-if ! systemctl is-active --quiet animus-agent; then
-    alert "Animus Claude parada. Reiniciando..."
-    systemctl restart animus-agent
+STATUS="$(pm2 jlist 2>/dev/null | node -e "let s='';process.stdin.on('data',d=>s+=d);process.stdin.on('end',()=>{const name=process.argv[1];const arr=JSON.parse(s||'[]');const p=arr.find(x=>x.name===name);console.log(p?.pm2_env?.status||'missing')})" "$BOT_NAME")"
+
+if [ "$STATUS" != "online" ]; then
+  log "PM2 status de $BOT_NAME = $STATUS. Reiniciando."
+  pm2 restart "$BOT_NAME" >/dev/null
+  sleep 3
 fi
 
-# Check 3: claude --continue do Animus esta rodando dentro do tmux?
-if ! pgrep -u animus -f 'claude --continue' >/dev/null; then
-    alert "Processo claude da Animus nao encontrado. Reiniciando animus-agent..."
-    systemctl restart animus-agent
-fi
+STATUS="$(pm2 jlist 2>/dev/null | node -e "let s='';process.stdin.on('data',d=>s+=d);process.stdin.on('end',()=>{const name=process.argv[1];const arr=JSON.parse(s||'[]');const p=arr.find(x=>x.name===name);console.log(p?.pm2_env?.status||'missing')})" "$BOT_NAME")"
+[ "$STATUS" = "online" ] || fail "$BOT_NAME nao ficou online no PM2"
 
-# Check 4: tmux session animus existe?
-if ! sudo -u animus tmux has-session -t animus 2>/dev/null; then
-    alert "tmux session animus nao existe. Reiniciando animus-agent..."
-    systemctl restart animus-agent
-fi
+claude --version >/dev/null 2>&1 || fail "claude CLI nao respondeu"
 
-log "OK - tudo saudavel"
+log "OK - $BOT_NAME online, repo=$REPO_DIR"

@@ -8,13 +8,13 @@ license: Comercial - Avalanche
 
 ## O que essa skill faz
 
-Voce e um agente que recebe um @username do Instagram e em ate 5 minutos entrega um dossie cinematografico completo, deployado em uma URL publica (USERNAME.DOMINIO_BASE, onde DOMINIO_BASE e o dominio do aluno configurado no .env do agente, ex: meunegocio.com.br), com:
+Voce e um agente que recebe um @username do Instagram e em ate 5 minutos entrega um dossie cinematografico completo, deployado em uma URL publica Gradsky ou, quando habilitado, em USERNAME.DOMINIO_BASE, com:
 
 1. Analise BMAD (Business Model, Audience, Differentiation) profunda
 2. Diagnostico de pilares de conteudo e padroes virais
 3. Plano estrategico de 30 dias com meta de +10% seguidores
 4. Site HTML cinematografico com 4 abas para o cliente navegar
-5. Deploy via Vercel + DNS Cloudflare em subdominio profissional do dominio do aluno
+5. Deploy via Gradsky PAT em service publico, com dominio customizado opcional do aluno
 
 ## Quando ativar
 
@@ -57,13 +57,17 @@ Usar `template-dossie.html` e substituir placeholders:
 - `{{GERADO_EM}}` (timestamp BRT)
 
 ### Etapa 5: Deploy
-1. Le `DOMINIO_BASE` do .env do agente (`/opt/animus-agent/.env` ou env exportada). Se nao existir, aborta e instrui o aluno: "Falta configurar DOMINIO_BASE no /opt/animus-agent/.env. Te explico como." e mostra o passo a passo.
-2. Define `FQDN="${USERNAME_INSTAGRAM}.${DOMINIO_BASE}"` (ex: `joaodasilva.meunegocio.com.br`).
-3. `git init` na pasta de output
-4. `gh repo create $GH_OWNER/dossie-USERNAME --private --source=. --push`
-5. `vercel --prod --token $VERCEL_TOKEN --scope $VERCEL_SCOPE --yes`
-6. `vercel domains add $FQDN <project>` no escopo do aluno
-7. Cria registro DNS A no Cloudflare zone do aluno (`$CLOUDFLARE_ZONE_ID` do .env) apontando pra 76.76.21.21 (proxy OFF), usando token `$CLOUDFLARE_DNS_TOKEN` do aluno.
+1. Le `GRADSKY_TOKEN` do `.env` do agente. Se nao existir, aborta e instrui o aluno a gerar um PAT Gradsky com scopes `read` e `deploy`.
+2. Usa `GRADSKY_PROJECT_ID` quando definido. Se nao existir, lista `GET /projects`; se houver mais de um projeto acessivel, aborta e pede `GRADSKY_PROJECT_ID`.
+3. Define dominio publico Gradsky com `POST /services/{serviceId}/public-domain` quando `GRADSKY_PUBLIC_DOMAIN=true`.
+4. Define `FQDN="${USERNAME_INSTAGRAM}.${DOMINIO_BASE}"` somente se `GRADSKY_ATTACH_DOMAIN=true`.
+4. `git init` na pasta de output.
+5. Cria/push repo privado com `GH_TOKEN` e `GH_USER`.
+6. Lista services com `GET /services?projectId=...` e procura `dossie-USERNAME` por `name` ou `slug`.
+7. Se nao existir, usa `POST /projects/{projectId}/import-docker-app` com `nginx:alpine`.
+8. Se existir e estiver conectado ao GitHub, apenas faz commit/push; a Gradsky dispara redeploy automatico. Usar env/restart somente com `GRADSKY_GIT_AUTO_DEPLOY=false`.
+9. Se `GRADSKY_ATTACH_DOMAIN=true`, solicita dominio customizado em `POST /services/{serviceId}/domains` com `{ "hostname": "<host>" }`.
+10. Se houver TXT de ownership, orientar o DNS. Em Cloudflare, proxy cinza/DNS only ate o SSL responder.
 
 ### Etapa 6: Entregar URL
 Retornar `https://$FQDN` ao usuario (ex: `https://joaodasilva.meunegocio.com.br`), com resumo executivo de 5 bullets.
@@ -82,29 +86,37 @@ A skill entrega prompts e template prontos. Voce, agente que executa, monta o pi
 1. Coletor de dados de Instagram (de sua escolha)
 2. Cliente Gemini API para rodar os 3 prompts em sequencia
 3. Renderizador HTML que aplica os outputs JSON ao template
-4. Deploy via gh CLI + vercel CLI + Cloudflare API
+4. Deploy via GitHub + Gradsky PAT
 
 ### Variaveis de ambiente necessarias
 
-O aluno cadastra no `/opt/animus-agent/.env` do agente dele (NAO no codigo da skill). A skill apenas le essas variaveis em runtime:
+O aluno cadastra no `.env` do Animus (NAO no codigo da skill). A skill apenas le essas variaveis em runtime:
 
 ```
 # IA
 GEMINI_API_KEY=...
 
-# Deploy (dominio do ALUNO)
-DOMINIO_BASE=meunegocio.com.br        # dominio raiz do aluno
-CLOUDFLARE_DNS_TOKEN=...              # token Cloudflare DNS Edit do aluno
-CLOUDFLARE_ZONE_ID=...                # zone_id da DOMINIO_BASE no Cloudflare do aluno
-VERCEL_TOKEN=...                      # token Vercel do aluno
-VERCEL_SCOPE=...                      # scope/team Vercel do aluno (ex: meunegocio-team)
+# Deploy Gradsky
+GRADSKY_TOKEN=...                     # PAT Gradsky com read + deploy
+GRADSKY_API=https://api.gradsky.com.br
+GRADSKY_PROJECT_ID=proj_...           # recomendado se houver mais de um projeto
+GRADSKY_PUBLIC_DOMAIN=true            # cria USERNAME.gradsky.com.br
+GRADSKY_ATTACH_DOMAIN=false           # true para solicitar dominio customizado
+GRADSKY_VERIFY_DOMAIN=false           # true para tentar verify custom domain com backoff
+GRADSKY_FORCE_DOMAIN=false            # true para reconfigurar dominio de service existente
+GRADSKY_GIT_AUTO_DEPLOY=true          # push no GitHub dispara redeploy automatico
+GRADSKY_FORCE_DEPLOY=false            # true para forcar POST /deploy via API
+DOMINIO_BASE=meunegocio.com.br        # obrigatorio apenas se GRADSKY_ATTACH_DOMAIN=true
+
+# GitHub
 GH_TOKEN=...                          # PAT GitHub do aluno
-GH_OWNER=meunegocio-bot               # owner/org no GitHub do aluno (user ou org)
+GH_USER=meunegocio-bot                # user/org no GitHub do aluno
+GH_EMAIL=deploy@meunegocio.com.br
 ```
 
-Se `DOMINIO_BASE` nao estiver setado, o agente ABORTA o deploy e responde:
+Se `GRADSKY_TOKEN` nao estiver setado, o agente ABORTA o deploy e responde:
 
-> "Falta configurar `DOMINIO_BASE` no /opt/animus-agent/.env. Te explico como."
+> "Falta configurar `GRADSKY_TOKEN` no .env do agente. Gere um PAT no Gradsky com scopes `read` e `deploy`, salve em `GRADSKY_TOKEN`, e tente novamente."
 
 E mostra o passo a passo (ver secao "Como o aluno configura o dominio dele" no PLAYBOOK-BMAD.md).
 
@@ -128,4 +140,4 @@ analisar-instagram-bmad/
 3. Se perfil for privado, avisar e parar. Nao tentar engenharia social.
 4. Plano de 30 dias sempre tem meta numerica realista (+10% padrao).
 5. Tom de voz: portugues brasileiro, fluido, sem travessoes, sem linguagem robotica.
-6. Apos deploy, sempre entregar a URL final (`https://USERNAME.DOMINIO_BASE`) com 5 insights principais resumidos.
+6. Apos deploy, sempre entregar a URL retornada pela Gradsky. Se dominio customizado estiver habilitado, entregar tambem `https://USERNAME.DOMINIO_BASE`.

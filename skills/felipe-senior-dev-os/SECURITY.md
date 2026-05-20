@@ -1,4 +1,4 @@
-# Security
+﻿# Security
 
 ## Postura
 
@@ -103,7 +103,7 @@ File upload:
 - Rate limit.
 - Logar evento sem payload sensivel.
 
-## VPS hardening
+## Container hardening
 
 - Usuario nao-root.
 - SSH key, senha desabilitada quando possivel.

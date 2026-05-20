@@ -1,6 +1,6 @@
 ---
 name: gerar-proposta-comercial
-description: Gera proposta comercial profissional completa em HTML single-page, cria repo GitHub privado, faz deploy na Vercel e aponta DNS no Cloudflare no DOMINIO DO ALUNO. Acionar quando o dono pedir "fazer proposta", "gerar proposta comercial", "monta proposta pra cliente X", "criar proposta de mentoria", "criar proposta de consultoria", "proposta pra fulano", "criar proposta a partir da call", "transcricao em proposta", "proposta light navy", "proposta layout maicon", "proposta com tabs", "proposta dark navy".
+description: Gera proposta comercial profissional completa em HTML single-page, cria repo GitHub privado e faz deploy na Gradsky via PAT. Acionar quando o dono pedir "fazer proposta", "gerar proposta comercial", "monta proposta pra cliente X", "criar proposta de mentoria", "criar proposta de consultoria", "proposta pra fulano", "criar proposta a partir da call", "transcricao em proposta", "proposta light navy", "proposta layout maicon", "proposta com tabs", "proposta dark navy".
 type: skill
 ---
 
@@ -8,7 +8,7 @@ type: skill
 
 Pipeline completo de 7 etapas para transformar uma transcricao de call de vendas em proposta profissional online no DOMINIO DO ALUNO.
 
-> **Importante:** o subdominio final e `<NOME>.<DOMINIO_BASE>`, onde `DOMINIO_BASE` e definido pelo proprio aluno no `.env` do agente (ex: `meunegocio.com.br`, `agencia.com`). NAO use dominio fixo hardcoded. Se o aluno nao configurar `DOMINIO_BASE`, o agente avisa e mostra como configurar.
+> **Importante:** por padrao a URL final e um dominio publico Gradsky (`<slug>.gradsky.com.br`). Se `GRADSKY_ATTACH_DOMAIN=true`, o subdominio customizado final e `<NOME>.<DOMINIO_BASE>`, onde `DOMINIO_BASE` e definido pelo proprio aluno no `.env` do agente. NAO use dominio customizado hardcoded.
 
 ## Quando acionar
 
@@ -73,17 +73,17 @@ Usar `template-proposta.html` como base. Substituir TODOS os placeholders:
 Padrao de nome: `proposta-NOME-CLIENTE` (slug, lowercase, hifens).
 Repo SEMPRE privado, na conta GitHub do aluno (variavel `GH_USER` no `.env`).
 
-### Etapa 5 — Deploy na Vercel
-Token em variavel `VERCEL_TOKEN` (env do aluno).
-Scope em `VERCEL_SCOPE` (slug do time/usuario do aluno na Vercel).
+### Etapa 5 — Deploy na Gradsky
+Token em variavel `GRADSKY_TOKEN` (env do aluno).
+Projeto em `GRADSKY_PROJECT_ID` quando houver mais de um projeto acessivel.
+O script usa `import-docker-app` com `nginx:alpine` e `SITE_HTML_B64`.
 
-### Etapa 6 — Apontar DNS no Cloudflare
-Zone ID em `{{CLOUDFLARE_ZONE_ID}}` (do aluno, da zone do dominio dele).
-Token em `{{CLOUDFLARE_DNS_TOKEN}}` (do aluno).
-Padrao: `<NOME>.${DOMINIO_BASE}` (lido do `.env` do agente do aluno).
-Tipo A, content `76.76.21.21`, TTL 1, proxied false.
+### Etapa 6 — Dominio na Gradsky
+Por padrao, o script solicita dominio publico Gradsky com `POST /services/{id}/public-domain` e payload `{ "label": "<slug>" }`.
 
-Antes de rodar a etapa 6, o script valida que `DOMINIO_BASE` existe e nao esta vazio. Se vazio, agente para a execucao e avisa o dono: "Falta configurar DOMINIO_BASE no .env do agente. Te explico como" + passo a passo.
+Se `GRADSKY_ATTACH_DOMAIN=true`, o script solicita dominio customizado `<NOME>.${DOMINIO_BASE}` via `POST /services/{id}/domains` e payload `{ "hostname": "<host>" }`.
+Se a API retornar TXT de ownership, o agente deve orientar o DNS do cliente. Em Cloudflare, proxy cinza/DNS only ate o SSL responder.
+Se `DOMINIO_BASE` estiver vazio nesse modo, o script aborta antes de operar.
 
 ### Etapa 7 — Salvar na dashboard (opcional)
 Se o aluno tiver dashboard de propostas, fazer POST em `${DASHBOARD_URL}/api/proposals`:
@@ -111,21 +111,26 @@ bash skills/gerar-proposta-comercial/scripts/deploy-proposta.sh \
   --domain "joaosilva"
 ```
 
-O script faz git init + gh repo create + vercel deploy + cloudflare DNS automaticamente.
+O script faz git init + GitHub privado + Gradsky deploy automaticamente.
 
 ## Variaveis de ambiente obrigatorias
 
-O aluno precisa configurar em `/opt/animus-agent/.env` (ou no `.env` do projeto) antes de rodar:
+O aluno precisa configurar no `.env` do Animus antes de rodar:
 - `GH_TOKEN` — Personal Access Token do GitHub com escopo `repo`
 - `GH_USER` — username do GitHub do aluno (ex: `meu-bot`)
-- `VERCEL_TOKEN` — Token da Vercel
-- `VERCEL_SCOPE` — slug do time/usuario na Vercel
-- `CLOUDFLARE_DNS_TOKEN` — Token de API do Cloudflare com permissao DNS:Edit (na zone do dominio do aluno)
-- `CLOUDFLARE_ZONE_ID` — ID da zone do dominio do aluno
-- `DOMINIO_BASE` — dominio raiz do aluno (ex: `meunegocio.com.br`, `agencia.com`). OBRIGATORIO. O subdominio final sera `<NOME_PROJETO>.${DOMINIO_BASE}`.
+- `GRADSKY_TOKEN` — PAT da Gradsky com scopes `read` e `deploy`
+- `GRADSKY_API` — opcional, default `https://api.gradsky.com.br`
+- `GRADSKY_PROJECT_ID` — recomendado quando o token acessa mais de um projeto
+- `GRADSKY_PUBLIC_DOMAIN` — opcional, default `true`, cria `<slug>.gradsky.com.br`
+- `GRADSKY_ATTACH_DOMAIN` — opcional, `true` para registrar dominio customizado
+- `GRADSKY_VERIFY_DOMAIN` — opcional, `true` para tentar verificar dominio customizado com backoff
+- `GRADSKY_FORCE_DOMAIN` — opcional, `true` para reconfigurar dominio de service existente
+- `GRADSKY_GIT_AUTO_DEPLOY` — opcional, default `true`, usa push no GitHub como gatilho de redeploy quando o service ja existe
+- `GRADSKY_FORCE_DEPLOY` — opcional, `true` para forcar `POST /services/{id}/deploy`
+- `DOMINIO_BASE` — dominio raiz do aluno. Obrigatorio apenas se `GRADSKY_ATTACH_DOMAIN=true`.
 - `DASHBOARD_URL` — URL da dashboard de propostas (opcional)
 
-> O agente VALIDA `DOMINIO_BASE` no inicio da execucao. Se estiver vazio ou ausente, ele para e mostra ao dono como configurar.
+> O agente valida `GRADSKY_TOKEN` no inicio da execucao. Se estiver vazio ou ausente, ele para e mostra ao dono como gerar um PAT Gradsky.
 
 ## Regras criticas (nao quebrar)
 

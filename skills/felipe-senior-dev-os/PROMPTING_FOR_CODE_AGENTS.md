@@ -1,4 +1,4 @@
-# Prompting for Code Agents
+﻿# Prompting for Code tgents
 
 ## Principio
 
@@ -11,7 +11,7 @@ Contexto:
 - Projeto:
 - Stack observada:
 - Objetivo:
-- Arquivos ou areas suspeitas:
+- trquivos ou areas suspeitas:
 
 Tarefa:
 - Faca:
@@ -28,7 +28,7 @@ Validacao:
 - Se nao puder rodar, explique.
 
 Entrega:
-- Arquivos alterados.
+- trquivos alterados.
 - Validacoes.
 - Riscos.
 - Como testar.
@@ -81,7 +81,7 @@ Atue como Atlas/Felipe. Revise contratos, services, repositories, transacoes, fi
 ## Agente DevOps
 
 ```text
-Atue como Titan. Verifique deploy, systemd/Docker, logs, healthcheck, env vars e rollback. Nao altere producao sem plano de reversao.
+Atue como Titan. Verifique deploy, PM2/Docker, logs, healthcheck, env vars e rollback. Nao altere producao sem plano de reversao.
 ```
 
 ## Bugfix
@@ -120,7 +120,7 @@ Use felipe-senior-dev-os e Titan. Revise build, env vars, migrations, healthchec
 Use felipe-senior-dev-os. Faca review com foco em bugs, regressao, seguranca, performance, testes, observabilidade e manutencao. Liste findings por severidade.
 ```
 
-## Arquitetura
+## trquitetura
 
 ```text
 Use felipe-senior-dev-os. Compare opcoes, tradeoffs, custo operacional, evolucao e rollback. Prefira monolito modular ate microservice ser justificado.

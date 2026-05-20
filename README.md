@@ -1,169 +1,171 @@
-# Agente Claude Code + Telegram - Setup Automatizado (v3 - VERSAO PUBLICA PRA ALUNOS)
+﻿# Animus â€” Agente Claude Code + Telegram
+
+Agente orquestrador rodando 24/7 num container Gradsky (Debian/Ubuntu persistente). Cada mensagem do Telegram dispara um `claude -p` headless que delega pros 9 subagentes especialistas (atlas, helena, aegis, titan, sentinel, victor, apollo, oracle, felipe).
 
 ---
 
-## INSTALACAO 5 MIN - Sem mexer em terminal (caminho recomendado)
+## InstalaÃ§Ã£o em 1 comando (recomendado)
 
-> **Voce nao precisa saber comando nenhum.** O Claude Code do seu PC faz SSH na sua VPS automaticamente, instala tudo, configura, sobe o agente. Voce so responde perguntas.
+### PrÃ©-requisito
+- Container Gradsky (Debian/Ubuntu, root) com `/workspace` persistente.
+- Claude Code CLI logado na sua conta Pro/Max (ou rode `claude /login` na primeira vez).
 
-**6 passos:**
+### Fluxo
 
-1. Compre uma VPS Ubuntu 22.04+ (Hostinger, Hetzner, DigitalOcean - 4GB RAM, ~R$30-60/mes)
-2. Anote IP, usuario (`root`) e senha que o provedor te mandou
-3. Abra o Claude Code no seu computador ([claude.com/code](https://claude.com/code) ou extensao VS Code)
-4. Cole o prompt magico que esta em [`prompt-instalador.txt`](./prompt-instalador.txt)
-5. Responda as perguntas do Claude (uma por vez, calmamente)
-6. Quando ele falar "agente no ar", abra o Telegram e converse com seu bot
+**1.** Abra o Claude Code dentro do container Gradsky:
 
-**Guia detalhado passo a passo:** [`INSTRUCAO-PARA-ALUNO.md`](./INSTRUCAO-PARA-ALUNO.md)
+```bash
+cd /workspace && claude
+```
+
+**2.** Cole o prompt abaixo (tambÃ©m estÃ¡ em [`prompt-instalador.txt`](./prompt-instalador.txt)):
+
+```
+OlÃ¡! Quero instalar o agente Animus no meu container Gradsky.
+
+RepositÃ³rio: https://github.com/chiponga/Animus.git
+
+Sua missÃ£o:
+1. Clona o repo em /workspace/Animus (se ainda nÃ£o existir).
+2. LÃª o arquivo INSTALL.md que estÃ¡ na raiz e executa todos os passos.
+3. Me faz UMA pergunta de cada vez, espera eu responder antes da prÃ³xima.
+```
+
+**3.** Responda as perguntas conforme o Claude pedir (nome do agente, dono, token Telegram do @BotFather, seu user_id do @userinfobot, e os opcionais OpenAI/ElevenLabs/Supabase).
+
+**4.** Em ~5 min o Claude vai dizer "agente no ar". Mande uma mensagem no Telegram pro seu bot.
+
+> O roteiro que o Claude segue Ã© o [`INSTALL.md`](./INSTALL.md). Ele lÃª, instala dependÃªncias via `bootstrap.sh`, escreve o `.env`, sobe o bot via PM2 e valida.
 
 ---
 
-## Caminho avancado (manual, pra quem ja sabe terminal)
+## InstalaÃ§Ã£o manual (sem o Claude intermediando)
 
-Se voce e desenvolvedor e prefere SSH na VPS e rodar os comandos voce mesmo, siga as secoes abaixo. O fluxo termina no mesmo agente, so e mais "hands on".
-
-> **VERSAO PUBLICA - ALUNOS DO {{DONO}}**
-> Esse repo e a versao publica/sanitizada do setup interno do {{DONO}}. Todos os dados pessoais do dono original viraram placeholders no formato `{{NOME}}`. Voce, aluno, vai preencher com os SEUS proprios dados (nome, dominios, IPs, tokens, bot Telegram, etc).
->
-> Nao tente rodar nada sem antes substituir os placeholders. Veja a tabela em `SETUP-AGENTE.md` (ETAPA 0) com cada `{{NOME}}` e onde pegar/o que e.
-
-Instala um agente Claude Code conectado ao Telegram em qualquer VPS Ubuntu 22+ ou macOS. Roda 24/7 via tmux + systemd (Linux) ou tmux + launchd (Mac), sobrevive reboots e auto-reinicia se cair.
-
-**v3 (abril 2026)** - upgrade massivo da v2:
-- agent-manager.py via PM2 (porta 3600 + Caddy + Cloudflare tunnel)
-- 8 especialistas Animus (atlas, aegis, helena, victor, sentinel, titan, apollo, oracle)
-- Audio bidirecional (Whisper entrada + ElevenLabs saida)
-- Memoria vetorial PostgreSQL + pgvector
-
-## Uso
-
-### 1. Na VPS limpa (Ubuntu 22.04+) ou no Mac:
+Se preferir fazer no terminal direto:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/denderson2013-bot/agente-claude-telegram-setup-alunos-denderson/main/bootstrap.sh | bash
+cd /workspace
+git clone https://github.com/chiponga/Animus.git
+cd Animus
+bash install.sh
 ```
 
-Linux: roda como `root`. Mac: roda como usuario normal (sem sudo na chamada). O script detecta o SO e instala o que precisa.
+O `install.sh` faz as mesmas perguntas que o Claude faria, escreve o `.env` e sobe o bot via PM2.
 
-Instala: Node 22 (via nvm), Python 3, ffmpeg, Claude Code CLI 2.1.118 (pinado), tmux, PostgreSQL 16 + pgvector, Caddy, pm2 globalmente. Baixa o `SETUP-AGENTE.md` pra `/root/` (Linux) ou `~/` (Mac).
+---
 
-### 2. Logar na conta Claude:
-
-```bash
-claude auth login --claudeai
-```
-
-Abre link no navegador, loga com Pro/Max, autoriza.
-
-### 3. Iniciar o Claude e deixar ele fazer o resto:
-
-```bash
-cd /root        # ou cd ~ no Mac
-claude --dangerously-skip-permissions
-```
-
-### 4. Dentro do Claude, cola:
+## Arquitetura
 
 ```
-Leia o arquivo SETUP-AGENTE.md e execute todos os passos.
-Me faca perguntas quando precisar de informacao minha.
+[Telegram]
+   â”‚
+   â–¼
+[bot.py â€” PM2, sempre vivo]    â† long polling getUpdates
+   â”‚
+   â–¼ subprocess STDIN
+[claude -p stream-json]        â† cada msg Ã© uma invocaÃ§Ã£o
+   â”‚
+   â”œâ”€â”€ responde direto (text events) â†’ Telegram
+   â””â”€â”€ delega via Task tool â†’ atlas / helena / aegis / titan / sentinel / victor / apollo / oracle / felipe
+                              â†“
+                          resposta consolidada â†’ Telegram
 ```
 
-O Claude pergunta nome do agente, dono, tokens, configura tudo e entrega o agente rodando.
+ResiliÃªncia:
+- PM2 reinicia o bot se ele cair; use `pm2 save` apos alterar processos.
+- Cada `claude -p` Ã© stateless (session via flag `-c` se jÃ¡ houve sessÃ£o anterior).
+- Inbox/sent persistente em `animus-bot/{inbox,sent,state,logs}/` pra auditoria.
+- Volumes Gradsky (`/workspace`, `/root`, `/opt`) sobrevivem a restart/redeploy.
 
-## Arquitetura v3
+---
 
-```
-[Telegram]  <==>  [Bot Python systemd 24/7]  <==>  tmux send-keys + outbox JSON
-                            |                              |
-                            v                              v
-                   [audio Whisper / TTS]          [Claude Code (tmux)]
-                                                          |
-                                                          v
-                                               [agent-manager.py PM2]
-                                                          |
-                                  +---------+---------+---+---+
-                                  v         v         v       v
-                              atlas aegis helena victor sentinel titan apollo oracle
-```
+## Recursos
 
-5 camadas de resiliencia:
-- Bot Python systemd `Restart=always`
-- Claude Code tmux + start.sh com backoff
-- agent-manager via PM2 (auto-restart)
-- Healthcheck a cada 2 min com auto-alerta no Telegram
+- **Bot externo Python** sempre vivo, independente do Claude Code.
+- **9 subagentes especialistas** em `.claude/agents/` (auto-descobertos).
+- **59 skills** em `skills/` (auto-descobertas via symlink `.claude/skills/ â†’ ../skills/`).
+- **Ãudio bidirecional opcional** (Whisper entrada + ElevenLabs TTS saÃ­da).
+- **MemÃ³ria vetorial opcional** via Supabase Postgres + pgvector (DATABASE_URL no `.env`).
+- **Aprendizado contÃ­nuo** via `.learnings/` (LEARNINGS.md, ERRORS.md, FEATURE_REQUESTS.md).
+- **Marker `[[SEND_FILE:/path]]`** pra enviar arquivos como anexo no Telegram.
 
-## Recursos v3
+### Skills premium (todas opcionais, pulam silenciosamente sem a key)
 
-- Bot externo Python sempre vivo (independente do Claude Code)
-- Audio entrada (Whisper PT-BR) e saida (ElevenLabs TTS) bidirecional
-- "Digitando..." automatico durante todo processamento
-- 8 especialistas Animus (atlas, aegis, helena, victor, sentinel, titan, apollo, oracle)
-- Memoria vetorial PostgreSQL + pgvector (HNSW index)
-- agent-manager.py via PM2 (porta 3600 + Caddy proxy HTTPS)
-- Healthcheck a cada 2 min com auto-alerta
-- Backup conversas a cada 2h, relatorio diario as 9h
+| Skill | Key necessÃ¡ria | Onde pegar |
+|---|---|---|
+| `visual-gen` (imagem/vÃ­deo via Flux, Imagen, Kling, Veo) | `MUAPI_API_KEY` | https://muapi.ai (pay-per-generation) |
+| `reddit-icp-monitor`, `claude-md-generator`, `producthunt-launch-kit`, `meeting-brief-generator` | `GEMINI_API_KEY` | https://aistudio.google.com/app/apikey (grÃ¡tis) |
+| `cold-email-verifier` | `VALIDEMAIL_API_KEY` | https://validemail.co (50 grÃ¡tis) |
+| `meeting-brief-generator` | `TAVILY_API_KEY` | https://tavily.com (grÃ¡tis) |
+| `hackernews-intel` | `HN_KEYWORDS` + (opcional) `SLACK_WEBHOOK` | configure direto no `.env` |
+| `reddit-icp-monitor` (modo OAuth, 60 RPM) | `REDDIT_CLIENT_*` | https://www.reddit.com/prefs/apps |
+
+---
 
 ## Requisitos
 
-- VPS Ubuntu 22.04+ (4 GB RAM minimo, 8 GB recomendado, 50 GB disco) **ou** macOS 13+
-- Conta Claude Pro ou Max
-- Conta Telegram (pra @BotFather)
-- (Opcional) OpenAI API key (audio entrada via Whisper)
-- (Opcional) ElevenLabs API key (audio saida via TTS)
-- (Opcional, deploy publico) GitHub PAT + Vercel token + Cloudflare DNS token
+- Container Gradsky (Debian/Ubuntu, root, com /workspace).
+- Conta Claude Pro ou Max (CLI logada).
+- Bot Telegram criado no @BotFather.
+- (Opcional) OpenAI key â€” Ã¡udio entrada.
+- (Opcional) ElevenLabs key â€” Ã¡udio saÃ­da.
+- (Opcional) Supabase DATABASE_URL â€” memÃ³ria vetorial.
 
-## Custo mensal por agente (estimado)
+---
 
-- VPS 4-8 GB: R$40-120 (Hostinger, Hetzner, DigitalOcean)
-- Claude Max: US$100 (Pro tambem serve)
-- OpenAI Whisper: ~$0.006/min de audio (irrelevante)
-- ElevenLabs: free tier 10k chars/mes serve, basic $5/mes
-- Telegram: gratis
-- PostgreSQL: gratis (local)
+## Comandos Ãºteis (depois de instalado)
 
-Total por agente: ~R$600-700/mes.
+```bash
+pm2 status                      # status do bot
+pm2 logs animus-bot             # logs ao vivo
+pm2 restart animus-bot          # restart
+tail -f animus-bot/logs/bot.log # log da aplicaÃ§Ã£o
+cat .env                        # config atual (cuidado, contÃ©m secrets)
+```
 
-## Migracao da v2 para v3
+Pra atualizar o repo (idempotente, com backup automÃ¡tico):
 
-Se ja tem agente v2 rodando, pra adicionar features v3:
-1. Atualiza Claude Code: `npm i -g @anthropic-ai/claude-code@2.1.118`
-2. Instala PM2: `npm i -g pm2`
-3. Cria `agent-manager.py` em `/opt/AGENTE/agent-manager/`
-4. Configura Caddy proxy + Cloudflare tunnel
-5. Reinicia tudo: `systemctl restart AGENTE AGENTE-bot && pm2 restart agent-manager`
+```bash
+cd /workspace/Animus
+bash scripts/upgrade.sh
+```
 
-## Issues / Suporte
+Se quebrar algo:
 
-https://github.com/denderson2013-bot/agente-claude-telegram-setup-alunos-denderson/issues
+```bash
+bash scripts/rollback.sh
+```
 
-## Como personalizar (placeholders)
+---
 
-Antes de rodar o setup, voce precisa preencher os placeholders no formato `{{NOME}}` que estao espalhados pelos arquivos. Tabela completa em `SETUP-AGENTE.md` (ETAPA 0).
+## Arquivos relevantes
 
-Resumo dos principais:
+| Arquivo | O quÃª |
+|---|---|
+| `SETUP-AGENTE.md` | Roteiro que o Claude segue no container Gradsky |
+| `prompt-instalador.txt` | Texto que vocÃª cola no Claude pra iniciar |
+| `install.sh` | Wizard interativo CLI (alternativa ao fluxo via Claude) |
+| `bootstrap.sh` | Instala deps (Python, Node, PM2, Claude CLI, gh, pandas) |
+| `animus-bot/bot.py` | Daemon Telegram (PM2 roda esse) |
+| `.env.example` | Template do `.env` â€” copie pra `.env` e preencha |
+| `CLAUDE.md` | Personalidade + regras do agente (lida toda sessÃ£o) |
+| `CHANGELOG.md` | HistÃ³rico de versÃµes |
+| `docs/ANIMUS-OS.md` | Metodologia de orquestracao, Work Objects, camadas e gates |
+| `docs/GRADSKY-PAT.md` | Guia de PAT Gradsky para deploys, services, env vars e dominios |
+| `.claude/agents/` | 9 subagentes (atlas, helena, aegis, titan, sentinel, victor, apollo, oracle, felipe) |
+| `.claude/skills/` | Symlink â†’ `skills/` (auto-discovery) |
+| `skills/` | Skills do Animus, incluindo `animus-orchestration-os`, `gradsky-paas`, marketing, dev, vendas, growth e branding |
+| `scripts/` | `backup.sh`, `rollback.sh`, `upgrade.sh`, `validate.sh` |
+| `docs/TROUBLESHOOTING.md` | Fixes pros 20+ erros mais comuns |
 
-| Placeholder | O que e | Onde voce acha |
-|---|---|---|
-| `{{DONO}}` | Seu primeiro nome (ou da empresa) | Voce decide |
-| `{{DONO_NOME_COMPLETO}}` | Nome completo do dono do agente | Voce decide |
-| `{{DONO_SLUG}}` | Versao "slug" do nome (lowercase, sem espacos) | Ex: `joao` se voce e Joao |
-| `{{EMAIL_DONO}}` | Seu email | Seu email pessoal/profissional |
-| `{{NICHO_DONO}}` | Nome da empresa/produto/marca | Voce decide |
-| `{{NICHO_DONO_SLUG}}` | Slug da empresa | Ex: `meunicho` |
-| `{{TELEGRAM_USER_ID_DONO}}` | Seu ID numerico no Telegram | Mande `/id` pra @userinfobot |
-| `{{TELEGRAM_BOT_USERNAME}}` | Username do bot que voce criou no @BotFather | Ex: `meuagente_bot` |
-| `{{INSTAGRAM_HANDLE_DONO}}` | Seu @ no Instagram (sem o @) | Ex: `joao.silva` |
-| `{{VPS_IP}}` | IP da VPS principal onde roda o agente | Hostinger/Hetzner/DigitalOcean |
-| `{{VPS_IP_ALT}}` / `{{VPS_IP_ALT_2}}` / `{{VPS_IP_ALT_3}}` | IPs de VPS adicionais (se tiver) | Painel da sua provedora |
-| `{{DOMINIO_PRINCIPAL}}` | Seu dominio raiz | Ex: `meusite.com` |
-| `{{DOMINIO_AI}}` | Dominio secundario (opcional) | Ex: `meusite.ai` |
-| `{{DOMINIO_CRM}}` | Dominio do CRM (se tiver) | Ex: `crm.meusite.com` |
-| `{{DOMINIO_CLIENTE_EXEMPLO}}` | Subdominio exemplo de cliente | Ex: `cliente1.meusite.com` |
-| `{{PRODUTO_DONO}}` | Nome do seu produto/SaaS principal | Voce decide |
-| `{{PRODUTO_DONO_SLUG}}` | Slug do produto | Ex: `meu-produto` |
-| `{{MENTORIA_DONO}}` / `{{FORMACAO_DONO}}` / `{{COMUNIDADE_DONO}}` | Nomes dos seus produtos educacionais | Voce decide |
-| `{{SENHA_PADRAO}}` | Senha admin que voce vai usar (TROCA depois!) | Voce define |
-| `{{GITHUB_USERNAME}}` | Seu username no GitHub | Conta sua |
-| `{{DONO_UPPER}}` / `{{NICHO_DONO_UPPER}}` | Versoes em CAIXA ALTA | Use os mesmos valores ja definidos, em uppercase |
+---
+
+## Plataforma Oficial
+
+O Animus usa Claude Code como motor oficial. O fluxo suportado neste repositorio e:
+
+```text
+Gradsky -> PM2 -> animus-bot/bot.py -> claude -p -> subagentes -> Telegram
+```
+
+Nao ha runtime alternativo no setup principal. A documentacao, o instalador e os scripts de validacao devem permanecer alinhados a esse fluxo.

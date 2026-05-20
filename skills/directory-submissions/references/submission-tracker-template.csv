@@ -1,4 +1,4 @@
-Directory,Tier,URL,Category,DR,Dofollow,Submission Date,Status,Live URL,Backlink Verified,Positioning Variant Used,Tags Used,Account Email,Notes
+﻿Directory,Tier,URL,Category,DR,Dofollow,Submission Date,Status,Live URL,Backlink Verified,Positioning Variant Used,Tags Used,Account Email,Notes
 Product Hunt,1,https://producthunt.com/posts/new,Launch,91,Yes,,Draft,,,Startup,,,
 Hacker News (Show HN),1,https://news.ycombinator.com/submit,Launch,91,No,,Draft,,,Dev,,,
 BetaList,1,https://betalist.com/submit,Launch,64,Yes,,Draft,,,Startup,,,
@@ -111,10 +111,9 @@ Launched.io,2,https://launched.io,Startup,40,Yes,,Draft,,,Startup,,,
 ProfitHunt,2,https://profithunt.co,Startup,40,Yes,,Draft,,,Startup,,,
 10words,2,https://10words.io,SaaS,40,Yes,,Draft,,,SaaS,,,
 TrustMRR,2,https://trustmrr.com,Startup,40,Yes,,Draft,,,Startup,,,
-OpenClawDir,2,https://openclawdir.com,Tech,35,Yes,,Draft,,,Dev,,,
 Build Voyage,2,https://buildvoyage.com,Startup,33,Yes,,Draft,,,Startup,,,
 AlphaDigits,2,https://alphadigits.com,SaaS,32,Yes,,Draft,,,SaaS,,,
-GPTForge,3,https://gptforge.net,AI,30,Yes,,Draft,,,AI,,,Domain created 2025 — DR 88 from source list is implausible
+GPTForge,3,https://gptforge.net,AI,30,Yes,,Draft,,,AI,,,Domain created 2025 â€” DR 88 from source list is implausible
 AI Tools Guide,3,https://aitoolsguide.com,AI,77,Yes,,Draft,,,AI,,,
 AIToolly,3,https://aitoolly.com,AI,69,Yes,,Draft,,,AI,,,
 All The AI Tools,3,https://alltheaitools.com,AI,66,Yes,,Draft,,,AI,,,

@@ -1,4 +1,4 @@
-# CATALOGO de Tools por Especialidade
+﻿# CATALOGO de Tools por Especialidade
 
 Matriz oficial de quais tools dar pra cada tipo de subagente. Regra de ouro: dar a MENOR quantidade de tools que resolva o trabalho.
 
@@ -6,7 +6,7 @@ Matriz oficial de quais tools dar pra cada tipo de subagente. Regra de ouro: dar
 
 ## Matriz Resumo
 
-| Especialidade | Tools Claude Code | Tools OpenClaw |
+| Especialidade | Tools Claude Code | Observacao |
 |---|---|---|
 | Dev / Engenheiro | Read, Write, Edit, Bash, WebFetch, Grep, Glob | fs.read, fs.write, fs.edit, shell.exec, web.fetch, grep, glob |
 | Copywriter | Read, Write, Edit, WebFetch, WebSearch, Grep | fs.read, fs.write, fs.edit, web.fetch, web.search, grep |
@@ -57,7 +57,7 @@ Matriz oficial de quais tools dar pra cada tipo de subagente. Regra de ouro: dar
 **Quando dar**: precisa listar arquivos por padrao (ex: todos os .csv de um dir).
 **Quando NAO dar**: subagente que sempre recebe path exato.
 
-### Agent (Claude Code) / agent.invoke (OpenClaw)
+### Agent
 **Quando dar**: SO pra coordenador (Animus, gestor de projeto, PM).
 **Quando NAO dar**: especialista. Risco de loop infinito de delegacao.
 
@@ -65,24 +65,22 @@ Matriz oficial de quais tools dar pra cada tipo de subagente. Regra de ouro: dar
 
 ## Regras de Seguranca por Tool
 
-### Bash / shell.exec — CRITICO
+### Bash / shell.exec â€” CRITICO
 - Nunca dar pra SDR, copywriter, pesquisador puro
 - Subagente com Bash pode rodar comando destrutivo. Garantir prompt forte com regras (no rm -rf, no force push, etc)
-- Em OpenClaw, considerar `isolation: true` no config
-
-### Write / Edit — MEDIO
+-
+### Write / Edit â€” MEDIO
 - Dar so pra quem produz artefato real
 - Subagente com Write pode sobrescrever arquivo. Garantir prompt que pede confirmacao em sobrescrita
 
-### WebFetch / WebSearch — BAIXO
+### WebFetch / WebSearch â€” BAIXO
 - Liberar a maioria. Risco baixo.
 - So nao liberar pra subagente offline (raro)
 
-### Agent — MEDIO
+### Agent â€” MEDIO
 - Liberar so pra coordenador
 - Risco: loop infinito. Subagente A invoca B, B invoca A.
-- Em OpenClaw, trabalhar com `max_depth: 2` no config
-
+-
 ---
 
 ## Decisao rapida: qual perfil tem essa tool?
@@ -105,10 +103,10 @@ Pergunta a ser feita ao criar o subagente:
 
 ## Tools que NAO existem no ecossistema (nao tentar liberar)
 
-- ~~`Database`~~ — usar Bash + psql/sqlite via shell
-- ~~`HTTP`~~ — usar WebFetch
-- ~~`Python`~~ — usar Bash com python3
-- ~~`Git`~~ — usar Bash com git
+- ~~`Database`~~ â€” usar Bash + psql/sqlite via shell
+- ~~`HTTP`~~ â€” usar WebFetch
+- ~~`Python`~~ â€” usar Bash com python3
+- ~~`Git`~~ â€” usar Bash com git
 
 ---
 
@@ -120,7 +118,7 @@ Se o subagente precisa de combinacao incomum, justificar no system prompt. Exemp
 ## Tools permitidas (nao convencional)
 - Read, Write, Edit, Bash, Agent
 - Por que Agent: esse perfil coordena outros subagentes sob supervisao do Animus
-- Por que Bash: precisa rodar deploy via Vercel CLI
+- Por que Bash: precisa rodar deploy via API Gradsky, scripts locais e validacoes
 ```
 
 Documentar no proprio prompt evita confusao depois.

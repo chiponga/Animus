@@ -1,4 +1,4 @@
-# Stack Preferida
+﻿# Stack Preferida
 
 ## Principio
 
@@ -108,7 +108,7 @@ Nao use quando:
 Use para:
 - Empacotar runtime imutavel.
 - Reproduzir ambiente.
-- Deploy consistente em VPS/PaaS.
+- Deploy consistente em Gradsky/PaaS.
 
 Padroes:
 - Imagem pequena.
@@ -116,10 +116,10 @@ Padroes:
 - Healthcheck real.
 - Secrets via env/secret manager, nunca baked na imagem.
 
-## systemd
+## PM2
 
 Use para:
-- Servicos persistentes em VPS Ubuntu.
+- Processos persistentes no container Gradsky.
 - Restart policy, logs via journal e dependencia de rede.
 
 Padroes:
@@ -145,7 +145,7 @@ Padroes:
 - Proteger secrets.
 - Ambientes com approvals quando producao.
 
-## VPS Ubuntu
+## Gradsky / Ubuntu container
 
 Use quando:
 - Custo previsivel, controle operacional e servicos long-running.

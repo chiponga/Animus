@@ -1,12 +1,12 @@
 ---
 name: gerar-landing-page
-description: Gera uma landing page profissional escolhendo entre 10 templates pre-prontos, cria repo GitHub privado, deploy na Vercel e DNS no Cloudflare apontando para o DOMINIO DO ALUNO. Acionar quando o dono pedir "cria uma landing page", "faz uma LP", "monta uma pagina de vendas", "preciso de uma LP", "landing page pra X", "pagina pro produto Y", "criar LP", "fazer landing", "gerar landing", "criar pagina de captura", "criar pagina de evento", "criar pagina de lancamento", "landing pra capturar email", "landing terminal", "landing matrix", "landing editorial", "landing de casamento", "landing pra meu SaaS".
+description: Gera uma landing page profissional escolhendo entre 10 templates pre-prontos, cria repo GitHub privado e faz deploy na Gradsky via PAT. Acionar quando o dono pedir "cria uma landing page", "faz uma LP", "monta uma pagina de vendas", "preciso de uma LP", "landing page pra X", "pagina pro produto Y", "criar LP", "fazer landing", "gerar landing", "criar pagina de captura", "criar pagina de evento", "criar pagina de lancamento", "landing pra capturar email", "landing terminal", "landing matrix", "landing editorial", "landing de casamento", "landing pra meu SaaS".
 type: skill
 ---
 
 # Skill: gerar-landing-page
 
-Pipeline para gerar uma landing page completa com base em 1 dos 10 templates disponiveis. Deploy automatico em `<NOME_PROJETO>.${DOMINIO_BASE}` (dominio do proprio aluno, sem dominio fixo hardcoded).
+Pipeline para gerar uma landing page completa com base em 1 dos 10 templates disponiveis. Deploy automatico em URL Gradsky gerenciada (`<slug>.gradsky.com.br`) ou, quando habilitado, em `<NOME_PROJETO>.${DOMINIO_BASE}`.
 
 ---
 
@@ -123,8 +123,8 @@ Perguntar (o que faltar):
 ### Etapa 3 — Montar HTML
 Copiar `templates/<escolhido>.html` para `/tmp/<slug>/index.html` e substituir todos os placeholders.
 
-### Etapa 4 — Validar `DOMINIO_BASE`
-Antes de qualquer deploy, validar que `DOMINIO_BASE` existe no `.env` do agente. Se vazio, parar e mostrar como configurar.
+### Etapa 4 — Validar Gradsky
+Antes de qualquer deploy, validar que `GRADSKY_TOKEN` existe no `.env` do agente. Se houver mais de um projeto acessivel, `GRADSKY_PROJECT_ID` tambem deve estar definido.
 
 ### Etapa 5 — Deploy completo
 Rodar `scripts/deploy-landing.sh`:
@@ -136,7 +136,7 @@ bash skills/gerar-landing-page/scripts/deploy-landing.sh \
   --dir  "/tmp/lancamento-x"
 ```
 
-URL final: `https://lancamento-x.${DOMINIO_BASE}`.
+URL final: usar a URL retornada pela API Gradsky. Por padrao o script solicita dominio publico Gradsky com `POST /services/{id}/public-domain` e `{ "label": "<slug>" }`. Se `GRADSKY_ATTACH_DOMAIN=true` e `DOMINIO_BASE` estiver configurado, tambem solicita dominio customizado com `{ "hostname": "lancamento-x.${DOMINIO_BASE}" }`.
 
 ### Etapa 6 — Entregar
 Devolver pro dono:
@@ -150,24 +150,27 @@ Devolver pro dono:
 
 Mesmas da skill de proposta-comercial (compartilhadas no `.env` do agente):
 - `GH_TOKEN`, `GH_USER`
-- `VERCEL_TOKEN`, `VERCEL_SCOPE`
-- `CLOUDFLARE_DNS_TOKEN`, `CLOUDFLARE_ZONE_ID`
-- `DOMINIO_BASE` (OBRIGATORIO — dominio raiz do aluno)
+- `GRADSKY_TOKEN`
+- `GRADSKY_API` (opcional, default `https://api.gradsky.com.br`)
+- `GRADSKY_PROJECT_ID` (recomendado)
+- `GRADSKY_PUBLIC_DOMAIN` (opcional, default `true`, cria `<slug>.gradsky.com.br`)
+- `GRADSKY_ATTACH_DOMAIN` (opcional, default `false`)
+- `GRADSKY_VERIFY_DOMAIN` (opcional, default `false`, tenta verificar dominio customizado com backoff)
+- `GRADSKY_FORCE_DOMAIN` (opcional, default `false`, reconfigura dominio quando o service ja existe)
+- `GRADSKY_GIT_AUTO_DEPLOY` (opcional, default `true`, usa push no GitHub como gatilho de redeploy quando o service ja existe)
+- `GRADSKY_FORCE_DEPLOY` (opcional, default `false`, forca `POST /services/{id}/deploy`)
+- `DOMINIO_BASE` (opcional, exigido apenas se `GRADSKY_ATTACH_DOMAIN=true`)
 
-Se `DOMINIO_BASE` estiver vazio, o agente para e responde:
+Se `GRADSKY_TOKEN` estiver vazio, o agente para e responde:
 
-> Falta configurar `DOMINIO_BASE` no .env do agente. Te explico como:
-> 1. Edite `/opt/animus-agent/.env`
-> 2. Adicione `DOMINIO_BASE=seunegocio.com.br`
-> 3. Configure tambem `CLOUDFLARE_ZONE_ID` (zone do Cloudflare desse dominio) e `CLOUDFLARE_DNS_TOKEN` (token DNS:Edit)
-> 4. Reinicie o agente e tente de novo
+> Falta configurar `GRADSKY_TOKEN` no .env do agente. Gere um PAT no Gradsky com scopes minimos `read` e `deploy`, salve em `GRADSKY_TOKEN`, e tente novamente.
 
 ---
 
 ## Regras criticas
 
 1. NUNCA gerar a LP sem confirmar qual dos 10 templates usar
-2. NUNCA usar dominio hardcoded; sempre `${DOMINIO_BASE}`
+2. NUNCA usar dominio customizado hardcoded; usar dominio publico Gradsky ou `${DOMINIO_BASE}`
 3. NUNCA usar travessoes na copy
 4. SEMPRE PT-BR com acentuacao completa
 5. SEMPRE repo privado

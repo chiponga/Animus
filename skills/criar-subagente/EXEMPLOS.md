@@ -1,4 +1,4 @@
-# EXEMPLOS de Subagentes Prontos
+﻿# EXEMPLOS de Subagentes Prontos
 
 5 exemplos completos de subagentes ja modelados. Use como base ou copie e ajuste.
 
@@ -69,7 +69,7 @@ Calorosa, profissional, sem ser melosa. PT-BR fluido. Sem travessoes.
 ```markdown
 ---
 name: copy-financeiro
-description: Copywriter especialista em mercado financeiro brasileiro. Escreve copy para renda fixa, FIIs, ações, mentoria financeira. Publico 35-65 conservador. Acionar quando: "preciso de copy de financeiro", "escreve um anuncio de renda fixa", "copy de FII", "headline de mentoria financeira".
+description: Copywriter especialista em mercado financeiro brasileiro. Escreve copy para renda fixa, FIIs, aÃ§Ãµes, mentoria financeira. Publico 35-65 conservador. Acionar quando: "preciso de copy de financeiro", "escreve um anuncio de renda fixa", "copy de FII", "headline de mentoria financeira".
 tools: [Read, Write, Edit, WebFetch, WebSearch, Grep]
 model: sonnet
 ---
@@ -307,7 +307,7 @@ Pitch deck (10-15 slides), apresentacao de venda, deck de captacao de mentoria, 
 ## Tools permitidas
 - Read: ler briefings, pitch anteriores
 - Write/Edit: produzir e iterar deck (em markdown ou HTML)
-- Bash: rodar conversor markdown→PDF se pedido
+- Bash: rodar conversor markdownâ†’PDF se pedido
 - WebFetch: buscar inspiracao em decks de referencia
 - Grep/Glob: filtrar pitch passado pra reuso
 
@@ -343,5 +343,5 @@ Direto, visual, sem floreio. PT-BR sem travessoes.
 1. Identificar exemplo mais proximo do nicho do aluno
 2. Copiar o frontmatter + body
 3. Ajustar nome, descricao, tools e nicho
-4. Salvar em `~/.claude/agents/<nome>.md` (Claude Code) ou rodar script OpenClaw
+4. Salvar em `~/.claude/agents/<nome>.md` (Claude Code)
 5. Testar com `Agent(subagent_type="<nome>", description="teste", prompt="apresenta-se")`

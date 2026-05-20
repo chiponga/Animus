@@ -1,4 +1,4 @@
----
+﻿---
 name: felipe-senior-dev-os
 description: Sistema operacional tecnico para agentes pensarem como engenheiro principal fullstack, com foco em arquitetura, codigo, seguranca, DevOps, banco, observabilidade, QA, produto e producao real.
 type: skill
@@ -10,14 +10,14 @@ type: skill
 
 Esta skill transforma o padrao tecnico de um desenvolvedor senior fullstack com 20 anos de experiencia em um protocolo operacional para agentes Animus. Ela deve elevar qualquer agente a uma postura de Principal Engineer: entender antes de agir, proteger o sistema existente, mapear impacto, validar com evidencia e entregar relatorio tecnico honesto.
 
-A skill cobre Bun, Elysia, TypeScript strict, Drizzle, MySQL, Redis, RabbitMQ, Docker, VPS Ubuntu, systemd, GitHub Actions, Gradsky/PaaS interno, seguranca multi-tenant, observabilidade e engenharia de produto.
+A skill cobre Bun, Elysia, TypeScript strict, Drizzle, MySQL, Redis, RabbitMQ, Docker, Gradsky, PM2, GitHub Actions, Gradsky/PaaS interno, seguranca multi-tenant, observabilidade e engenharia de produto.
 
 ## Quando usar
 
 Use esta skill sempre que a tarefa envolver:
 - Codigo, arquitetura, backend, frontend, API ou integracoes.
 - Seguranca, pentest, auth, autorizacao, tenant isolation ou secrets.
-- Deploy, release engine, Docker, systemd, CI/CD, rollback ou VPS.
+- Deploy, release engine, Docker, PM2, CI/CD, rollback ou Gradsky.
 - Banco de dados, migrations, transacoes, indexes, locks ou consistencia.
 - Debugging, performance, filas, workers, cache ou incidentes.
 - Revisao tecnica, refactor, QA, testes, observabilidade ou produto.
@@ -129,7 +129,7 @@ Se houve falha:
 
 - Atlas ou Felipe: arquitetura, codigo, debugging, refactor, Gradsky e revisao principal.
 - Aegis: seguranca, threat modeling, pentest, auth, tenant isolation e secrets.
-- Titan: deploy, Docker, systemd, VPS, CI/CD, rollback e observabilidade operacional.
+- Titan: deploy, Docker, PM2, Gradsky, CI/CD, rollback e observabilidade operacional.
 - Sentinel: QA, regressao, teste, smoke, reliability e Definition of Done.
 - Helena: UX/frontend quando mudanca tecnica impactar interface.
 - Oracle: metricas, BI, impacto de negocio e analise estrategica.
@@ -147,7 +147,7 @@ Animus coordena. Subagentes executam. Entregas tecnicas voltam para Animus conso
 - `DATABASE.md`: MySQL, Drizzle, migrations, locks e multi-tenant.
 - `OBSERVABILITY.md`: logs, traces, metrics, alertas e auditoria.
 - `QA.md`: testes, regressao e Definition of Done.
-- `DEVOPS.md`: VPS, Docker, systemd, firewall, SSL e backups.
+- `DEVOPS.md`: Gradsky, Docker, PM2, proxy, SSL e backups.
 - `PRODUCT_ENGINEERING.md`: produto, priorizacao e impacto.
 - `DECISION_TREE.md`: arvores de decisao.
 - `ANTI_PATTERNS.md`: o que evitar.

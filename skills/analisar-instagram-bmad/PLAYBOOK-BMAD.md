@@ -115,59 +115,64 @@ Custo de producao: depende do scraper escolhido pelo aluno + Gemini (~US$0,02 po
 
 ## Como o aluno configura o dominio dele
 
-A skill NAO usa dominio fixo. Cada aluno usa o proprio dominio. O subdominio gerado e sempre `<USERNAME_DO_INSTAGRAM>.<DOMINIO_BASE>`, onde `DOMINIO_BASE` vem do `.env` do agente do aluno.
+A skill NAO usa dominio customizado fixo. Por padrao, ela gera um dominio publico Gradsky (`<USERNAME_DO_INSTAGRAM>.gradsky.com.br`). Se `GRADSKY_ATTACH_DOMAIN=true`, tambem solicita `<USERNAME_DO_INSTAGRAM>.<DOMINIO_BASE>`, onde `DOMINIO_BASE` vem do `.env` do agente do aluno.
 
 ### Pre-requisitos do aluno
 
 1. Ter um dominio registrado (ex: `meunegocio.com.br`, `clinicadrjoao.com`, qualquer um).
-2. Ter o dominio gerenciado pelo Cloudflare (DNS apontado para nameservers do Cloudflare).
-3. Ter conta no Vercel com um team/scope ativo.
+2. Ter conta Gradsky ativa.
+3. Ter um PAT Gradsky com scopes `read` e `deploy`.
 4. Ter conta no GitHub (user ou organization).
 
-### Variaveis que o aluno cadastra no /opt/animus-agent/.env
+### Variaveis que o aluno cadastra no .env do Animus
 
 ```bash
 # Dominio raiz do aluno (sem http, sem subdominio)
 DOMINIO_BASE=meunegocio.com.br
 
-# Cloudflare (do aluno)
-CLOUDFLARE_DNS_TOKEN=cfut_...    # token com permissao DNS Edit na zone
-CLOUDFLARE_ZONE_ID=abc123...     # zone_id da DOMINIO_BASE no Cloudflare
-
-# Vercel (do aluno)
-VERCEL_TOKEN=vcp_...             # token de API
-VERCEL_SCOPE=meunegocio-team     # nome do team/scope
+# Gradsky
+GRADSKY_TOKEN=gsky_pat_...       # PAT com read + deploy
+GRADSKY_API=https://api.gradsky.com.br
+GRADSKY_PROJECT_ID=proj_...      # recomendado quando ha mais de um projeto
+GRADSKY_PUBLIC_DOMAIN=true       # cria dominio gerenciado x.gradsky.com.br
+GRADSKY_ATTACH_DOMAIN=false      # true para solicitar dominio customizado
+GRADSKY_VERIFY_DOMAIN=false      # true para tentar verificar custom domain com backoff
+GRADSKY_FORCE_DOMAIN=false       # true para reconfigurar dominio de service existente
+GRADSKY_GIT_AUTO_DEPLOY=true     # push no GitHub dispara redeploy automatico
+GRADSKY_FORCE_DEPLOY=false       # true para forcar POST /deploy via API
 
 # GitHub (do aluno)
 GH_TOKEN=ghp_...                 # PAT com permissao repo
-GH_OWNER=meunegocio-bot          # username ou org do GitHub
+GH_USER=meunegocio-bot           # username ou org do GitHub
+GH_EMAIL=deploy@meunegocio.com.br
 ```
 
 ### Como o aluno consegue cada token
 
-**Cloudflare DNS Token + Zone ID:**
-1. Login em dash.cloudflare.com.
-2. Selecionar o dominio `DOMINIO_BASE`.
-3. No painel direito (Overview), copiar o `Zone ID` -> cola em `CLOUDFLARE_ZONE_ID`.
-4. Em "My Profile" -> "API Tokens" -> "Create Token" -> template "Edit zone DNS" -> escopo apenas para a zone do `DOMINIO_BASE` -> copiar token -> cola em `CLOUDFLARE_DNS_TOKEN`.
-
-**Vercel Token + Scope:**
-1. Login em vercel.com -> Settings -> Tokens -> Create Token (escopo: full access).
-2. `VERCEL_SCOPE` e o slug do team (visivel na URL `vercel.com/<scope>/...`).
+**Gradsky PAT + projeto:**
+1. Login em `https://app.gradsky.com.br`.
+2. Settings -> Tokens de Acesso -> Gerar novo token.
+3. Scopes minimos: `read` e `deploy`.
+4. Salvar em `GRADSKY_TOKEN`.
+5. Se o token acessa mais de um projeto, definir `GRADSKY_PROJECT_ID`.
+6. Para dominio publico Gradsky, manter `GRADSKY_PUBLIC_DOMAIN=true` e garantir scope `domains:write`.
+7. Para dominio customizado, habilitar `GRADSKY_ATTACH_DOMAIN=true`, preencher `DOMINIO_BASE`, garantir scope `domains:write` e configurar DNS.
+8. Se o DNS for Cloudflare, manter proxy cinza/DNS only ate o SSL responder; depois pode ligar proxy laranja com SSL `Full (strict)`.
 
 **GitHub Token + Owner:**
 1. Login em github.com -> Settings -> Developer settings -> Personal access tokens -> Fine-grained ou Classic.
 2. Permissoes: `repo` (criar repos privados, push).
-3. `GH_OWNER` e o username (ou org) que vai dono dos repos `dossie-<username>`.
+3. `GH_USER` e o username (ou org) que vai dono dos repos `dossie-<username>`.
 
 ### Validacao automatica no deploy-dossie.sh
 
 O script valida na ordem:
 
 1. Existe `DOMINIO_BASE`? Se nao -> aborta com instrucao.
-2. Existe `CLOUDFLARE_DNS_TOKEN` e `CLOUDFLARE_ZONE_ID`? Se nao -> aborta.
-3. Existe `VERCEL_TOKEN` e `VERCEL_SCOPE`? Se nao -> aborta.
-4. Existe `GH_TOKEN` e `GH_OWNER`? Se nao -> aborta.
+2. Existe `GRADSKY_TOKEN`? Se nao -> aborta.
+3. Existe `GRADSKY_PROJECT_ID` ou apenas um projeto acessivel via PAT? Se nao -> aborta.
+4. Existe `GH_TOKEN` e `GH_USER`? Se nao -> aborta.
+5. Se dominio customizado estiver ativo, a API retornou/verificou DNS ou o agente entregou as instrucoes de CNAME/TXT?
 
 Se tudo OK, monta o FQDN como `${USERNAME_INSTAGRAM}.${DOMINIO_BASE}` e segue o pipeline.
 
@@ -178,16 +183,17 @@ Aluno: Joao da Silva. Dominio dele: `joaosilva.com.br`.
 ```bash
 # .env do agente do Joao
 DOMINIO_BASE=joaosilva.com.br
-CLOUDFLARE_ZONE_ID=cf_zone_do_joaosilva_com_br
-GH_OWNER=joaosilva-bot
-VERCEL_SCOPE=joaosilva-team
+GRADSKY_PROJECT_ID=proj_joao
+GRADSKY_PUBLIC_DOMAIN=true
+GRADSKY_ATTACH_DOMAIN=true
+GH_USER=joaosilva-bot
 ```
 
 Joao roda `analisa @perfilcliente`. Resultado:
 - Repo GitHub: `joaosilva-bot/dossie-perfilcliente` (privado)
-- Vercel project: `dossie-perfilcliente` no scope `joaosilva-team`
-- Dominio Vercel: `perfilcliente.joaosilva.com.br`
-- DNS Cloudflare: A `perfilcliente` -> `76.76.21.21`, proxy OFF, na zone do `joaosilva.com.br`
+- Service Gradsky: `dossie-perfilcliente`
+- Dominio publico Gradsky: `perfilcliente.gradsky.com.br`
+- Dominio Gradsky solicitado: `perfilcliente.joaosilva.com.br`
 - URL final entregue ao cliente: `https://perfilcliente.joaosilva.com.br`
 
 ## Checklist mental antes de entregar
@@ -195,7 +201,7 @@ Joao roda `analisa @perfilcliente`. Resultado:
 - [ ] Os 4 pilares B M A D foram cobertos no dossie?
 - [ ] O plano de 30 dias tem 30 cards (um por dia)?
 - [ ] A meta numerica esta explicita (+10% ou X reais)?
-- [ ] O HTML carrega sem erro no Vercel?
+- [ ] O HTML carrega sem erro no service Gradsky?
 - [ ] O `DOMINIO_BASE` do aluno foi lido com sucesso do .env?
 - [ ] O dominio `USERNAME.DOMINIO_BASE` responde 200?
 - [ ] O resumo executivo tem 5 bullets concretos?

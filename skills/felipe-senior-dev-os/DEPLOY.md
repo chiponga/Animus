@@ -1,4 +1,4 @@
-# Deploy
+﻿# Deploy
 
 ## Principio
 
@@ -78,15 +78,15 @@ Nao use canary sem:
 - Medir erro/latencia.
 - Reverter automaticamente ou manualmente rapido.
 
-## systemd
+## PM2
 
-Checklist unit:
-- `User` nao-root.
-- `WorkingDirectory`.
-- `EnvironmentFile`.
-- `Restart`.
-- Logs no journal.
-- `ExecStop` ou graceful shutdown quando necessario.
+Checklist processo:
+- Nome estavel.
+- Diretorio de trabalho correto.
+- `.env` com permissao segura.
+- Restart configurado.
+- Logs em arquivo ou PM2.
+- Graceful shutdown quando necessario.
 
 ## Docker
 

@@ -1,4 +1,4 @@
-# PLAYBOOK: Quando criar subagente novo vs adaptar um existente
+﻿# PLAYBOOK: Quando criar subagente novo vs adaptar um existente
 
 Decisao crucial. Criar subagente custa setup, manutencao, contexto. Adaptar existente e mais leve.
 
@@ -6,19 +6,19 @@ Decisao crucial. Criar subagente custa setup, manutencao, contexto. Adaptar exis
 
 ## Pergunta 1: O subagente atual cobre 80%+ do trabalho?
 
-Se SIM → ADAPTAR (atualize o system prompt do existente, adicione referencia de nicho).
-Se NAO → CRIAR novo.
+Se SIM â†’ ADAPTAR (atualize o system prompt do existente, adicione referencia de nicho).
+Se NAO â†’ CRIAR novo.
 
 Exemplo:
 - "Preciso de um SDR pra estetica" -> Apollo cobre SDR e growth. Posso ADAPTAR Apollo com knowledge de estetica? Se a linguagem/tom/estrutura for muito diferente, criar `sdr-estetica` separado.
-- "Preciso de um analista de dados" → Nao existe. CRIAR `analista-dados`.
+- "Preciso de um analista de dados" â†’ Nao existe. CRIAR `analista-dados`.
 
 ---
 
 ## Pergunta 2: O nicho exige tom/linguagem especifica?
 
-Se SIM → tende a CRIAR.
-Se NAO → tende a ADAPTAR.
+Se SIM â†’ tende a CRIAR.
+Se NAO â†’ tende a ADAPTAR.
 
 Exemplos:
 - Copy financeiro vs copy de info-produto: tom MUITO diferente. CRIAR `copy-financeiro` separado.
@@ -28,8 +28,8 @@ Exemplos:
 
 ## Pergunta 3: O publico/persona muda completamente?
 
-Se SIM → CRIAR.
-Se NAO → ADAPTAR.
+Se SIM â†’ CRIAR.
+Se NAO â†’ ADAPTAR.
 
 Exemplos:
 - SDR pra B2B SaaS (CTO, 35-50, tecnico) vs SDR pra estetica (mulher 28-55, autoestima): personas opostas. CRIAR.
@@ -39,8 +39,8 @@ Exemplos:
 
 ## Pergunta 4: As tools necessarias sao radicalmente diferentes?
 
-Se SIM → CRIAR (tools diferentes = subagente diferente).
-Se NAO → ADAPTAR.
+Se SIM â†’ CRIAR (tools diferentes = subagente diferente).
+Se NAO â†’ ADAPTAR.
 
 Exemplos:
 - Copywriter geral (Read, Write, Edit, WebFetch, WebSearch) vs Copywriter financeiro (mesmas tools): tool igual. ADAPTAR.
@@ -59,7 +59,7 @@ Exemplos:
 ## Como ADAPTAR um subagente existente
 
 1. Identificar especialista mais proximo (ex: Apollo para SDR de academia)
-2. Editar arquivo `~/.claude/agents/<nome>.md` ou OpenClaw config
+2. Editar arquivo `~/.claude/agents/<nome>.md` ou configuracao Claude Code
 3. Adicionar secao "Especialidade do nicho" no system prompt:
    ```
    ## Especialidade adicional: Estetica
@@ -83,7 +83,7 @@ Pipeline completo na SKILL.md. Resumo:
 3. Gerar descricao com triggers
 4. Escolher tools via CATALOGO-TOOLS.md
 5. Gerar system prompt completo
-6. Salvar arquivo (script Claude Code OU OpenClaw)
+6. Salvar arquivo (script Claude Code)
 7. Validar e ativar
 8. Reportar ao aluno
 
@@ -119,8 +119,7 @@ Sempre testar com 1 prompt simples antes de entregar pro aluno.
 
 Como arquivar:
 - Claude Code: mover `~/.claude/agents/<nome>.md` pra `~/.claude/agents/_archive/`
-- OpenClaw: marcar `enabled: false` no JSON, manter no historico
-
+-
 NAO deletar fisicamente. Pode precisar voltar.
 
 ---
@@ -146,14 +145,14 @@ Se o trabalho:
 - Nao precisa de personalidade fixa
 - Pode ser resolvido com instrucao direta
 
-→ NAO criar subagente. Resolver direto OU criar skill `.md` (mais leve).
+â†’ NAO criar subagente. Resolver direto OU criar skill `.md` (mais leve).
 
 Skill = receita reutilizavel.
 Subagente = membro da equipe com personalidade fixa.
 
 Diferenca pratica:
-- Skill `gerar-relatorio-mensal.md` → instrucao reutilizavel
-- Subagente `analista-dados` → membro fixo da equipe que faz varias tarefas
+- Skill `gerar-relatorio-mensal.md` â†’ instrucao reutilizavel
+- Subagente `analista-dados` â†’ membro fixo da equipe que faz varias tarefas
 
 ---
 
@@ -168,5 +167,4 @@ Diferenca pratica:
 - [ ] Modelo apropriado (sonnet default)
 - [ ] Testado com 1 prompt simples
 - [ ] Arquivo salvo no path correto
-- [ ] OpenClaw: backup feito, JSON validado, restart ok
-- [ ] Aluno informado com formato padrao do output
+- [ ] - [ ] Aluno informado com formato padrao do output
