@@ -45,6 +45,7 @@ Use obrigatoriamente quando o pedido envolver:
 Use junto com:
 
 - `felipe-senior-dev-os` para engenharia, arquitetura, seguranca, banco, deploy e validacao.
+- `animus-growth-os-agent-api` quando o SaaS criado for o Animus Growth OS ou quando o pedido envolver operar rotas, tokens, webhooks, CRM, Inbox, WhatsApp, Instagram, automacoes, campanhas, jobs ou analytics desse sistema.
 - `gradsky-paas` quando houver deploy real Gradsky.
 - Helena para UX/design.
 - Atlas para codigo.

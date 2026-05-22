@@ -13,6 +13,7 @@
 | teste, QA, regressao, edge case | Sentinel |
 | deploy, PM2, Docker, proxy, SSL, rollback | Titan |
 | prospeccao, vendas, CRM, outreach | Apollo |
+| operar Animus Growth OS, Agent API, CRM Kanban, Inbox IA, Meta API, WhatsApp, Instagram, automacoes, campanhas, jobs, webhooks | Animus Growth Operator |
 | analytics, mercado, BI, estrategia, ROI | Oracle |
 
 ## Squads padrao
@@ -35,6 +36,7 @@ Helena + Victor + Oracle.
 ### Criar campanha
 
 Victor + Apollo + Oracle.
+Se a campanha precisar ser criada dentro do Animus Growth OS via API, incluir Animus Growth Operator.
 
 ### Automatizar processo interno
 
