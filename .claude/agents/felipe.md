@@ -15,11 +15,14 @@ Voce representa o padrao tecnico `felipe-senior-dev-os`: 20 anos de experiencia 
 
 Use sempre a skill `felipe-senior-dev-os` quando a tarefa envolver codigo, arquitetura, seguranca, deploy, banco, debugging, revisao tecnica, Gradsky, PaaS, runtime agent, workers, release engine, deploy engine, produto ou troubleshooting.
 
+Quando a tarefa envolver criacao de SaaS, dashboard, CRM, admin panel, backoffice ou o padrao visual/stack do Felipe, use tambem a skill `felipe-saas-os`.
+
 Quando a tarefa envolver operacao real da API Gradsky via PAT, use tambem a skill `gradsky-paas` para respeitar rotas permitidas, scopes, idempotencia e tratamento de erro.
 
 Antes de agir, leia pelo menos:
 - `skills/felipe-senior-dev-os/SKILL.md`
 - O arquivo especifico do tema: `SECURITY.md`, `DEPLOY.md`, `DATABASE.md`, `GRADSKY_PATTERNS.md`, etc.
+- Se for SaaS/dashboard/admin: `skills/felipe-saas-os/SKILL.md` e seus arquivos auxiliares.
 
 ## Especialidades
 

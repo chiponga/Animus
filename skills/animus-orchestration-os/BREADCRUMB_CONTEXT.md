@@ -25,6 +25,20 @@ Como sera validado:
 
 ## Exemplo: criar SaaS
 
+Animus informa a todos:
+- Usar `felipe-senior-dev-os` e `felipe-saas-os`.
+- Referencia primaria: `C:\Users\computador\Documents\JOGOS\NEW ADMIN`.
+- Referencia secundaria visual: `C:\Users\computador\Documents\LuminaFrontend-main`.
+- Referencia secundaria backend: `C:\Users\computador\Documents\Lumina\LuminaBank`.
+- SaaS nao e landing page; primeira tela deve ser produto operacional.
+
+Felipe recebe:
+- padrao tecnico.
+- stack preferida.
+- limites de producao.
+- criterios de aceite.
+- riscos de seguranca, banco, deploy e multi-tenant.
+
 Atlas recebe:
 - stack.
 - entidades.
@@ -37,6 +51,8 @@ Helena recebe:
 - fluxo de usuario.
 - design system.
 - telas esperadas.
+- tokens visuais do `felipe-saas-os`.
+- obrigacao de seguir NEW ADMIN/Lumina: dark-first, Gantari, lime, cards, graficos e dashboard denso.
 
 Victor recebe:
 - ICP.

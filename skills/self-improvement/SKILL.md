@@ -1,8 +1,4 @@
-<<<<<<< HEAD
-﻿---
-=======
----
->>>>>>> e3f95ead324819de792d72b88e4ceac8037a42fb
+﻿ï»¿---
 name: self-improvement
 description: "Captures learnings, errors, and corrections to enable continuous improvement. Use when: (1) A command or operation fails unexpectedly, (2) User corrects Claude ('No, that's wrong...', 'Actually...'), (3) User requests a capability that doesn't exist, (4) An external API or tool fails, (5) Claude realizes its knowledge is outdated or incorrect, (6) A better approach is discovered for a recurring task. Also review learnings before major tasks."
 metadata:
@@ -42,7 +38,6 @@ If you want automatic reminders or setup assistance, use the opt-in hook workflo
 | Simplify/Harden recurring patterns | Log/update `.learnings/LEARNINGS.md` with `Source: simplify-and-harden` and a stable `Pattern-Key` |
 | Similar to existing entry | Link with `**See Also**`, consider priority bump |
 | Broadly applicable learning | Promote to `CLAUDE.md`, `AGENTS.md`, and/or `.github/copilot-instructions.md` |
-<<<<<<< HEAD
 | Workflow improvements | Promote to `AGENTS.md` or `CLAUDE.md` when they affect agent behavior |
 | Tool gotchas | Promote to `CLAUDE.md` or project docs |
 | Behavioral patterns | Promote to `CLAUDE.md` or `.learnings/LEARNINGS.md` |
@@ -61,52 +56,11 @@ This skill is used inside the Animus repository with Claude Code. The canonical 
     LEARNINGS.md
     ERRORS.md
     FEATURE_REQUESTS.md
-=======
-| Workflow improvements | Promote to `AGENTS.md` (OpenClaw workspace) |
-| Tool gotchas | Promote to `TOOLS.md` (OpenClaw workspace) |
-| Behavioral patterns | Promote to `SOUL.md` (OpenClaw workspace) |
-
-## OpenClaw Setup (Recommended)
-
-OpenClaw is the primary platform for this skill. It uses workspace-based prompt injection with automatic skill loading.
-
-### Installation
-
-**Via ClawdHub (recommended):**
-```bash
-clawdhub install self-improving-agent
-```
-
-**Manual:**
-```bash
-git clone https://github.com/peterskoett/self-improving-agent.git ~/.openclaw/skills/self-improving-agent
-```
-
-Remade for openclaw from original repo : https://github.com/pskoett/pskoett-ai-skills - https://github.com/pskoett/pskoett-ai-skills/tree/main/skills/self-improvement
-
-### Workspace Structure
-
-OpenClaw injects these files into every session:
-
-```
-~/.openclaw/workspace/
-├── AGENTS.md          # Multi-agent workflows, delegation patterns
-├── SOUL.md            # Behavioral guidelines, personality, principles
-├── TOOLS.md           # Tool capabilities, integration gotchas
-├── MEMORY.md          # Long-term memory (main session only)
-├── memory/            # Daily memory files
-│   └── YYYY-MM-DD.md
-└── .learnings/        # This skill's log files
-    ├── LEARNINGS.md
-    ├── ERRORS.md
-    └── FEATURE_REQUESTS.md
->>>>>>> e3f95ead324819de792d72b88e4ceac8037a42fb
 ```
 
 ### Create Learning Files
 
 ```bash
-<<<<<<< HEAD
 mkdir -p .learnings
 [ -f .learnings/LEARNINGS.md ] || printf "# Learnings\n\n---\n" > .learnings/LEARNINGS.md
 [ -f .learnings/ERRORS.md ] || printf "# Errors\n\n---\n" > .learnings/ERRORS.md
@@ -130,50 +84,6 @@ Use short, durable rules. Do not paste raw logs or secrets into project memory.
 ## Generic Setup (Other Agents)
 
 For Claude Code, Codex, Copilot, or other agents, create `.learnings/` in the project or workspace root:
-=======
-mkdir -p ~/.openclaw/workspace/.learnings
-```
-
-Then create the log files (or copy from `assets/`):
-- `LEARNINGS.md` — corrections, knowledge gaps, best practices
-- `ERRORS.md` — command failures, exceptions
-- `FEATURE_REQUESTS.md` — user-requested capabilities
-
-### Promotion Targets
-
-When learnings prove broadly applicable, promote them to workspace files:
-
-| Learning Type | Promote To | Example |
-|---------------|------------|---------|
-| Behavioral patterns | `SOUL.md` | "Be concise, avoid disclaimers" |
-| Workflow improvements | `AGENTS.md` | "Spawn sub-agents for long tasks" |
-| Tool gotchas | `TOOLS.md` | "Git push needs auth configured first" |
-
-### Inter-Session Communication
-
-OpenClaw provides tools to share learnings across sessions:
-
-- **sessions_list** — View active/recent sessions
-- **sessions_history** — Read another session's transcript  
-- **sessions_send** — Send a learning to another session
-- **sessions_spawn** — Spawn a sub-agent for background work
-
-Use these only in trusted environments and only when the user explicitly wants cross-session sharing. Prefer sending a short sanitized summary and relevant file paths, not raw transcripts, secrets, or full command output.
-
-### Optional: Enable Hook
-
-For automatic reminders at session start:
-
-```bash
-# Copy hook to OpenClaw hooks directory
-cp -r hooks/openclaw ~/.openclaw/hooks/self-improvement
-
-# Enable it
-openclaw hooks enable self-improvement
-```
-
-See `references/openclaw-integration.md` for complete details.
->>>>>>> e3f95ead324819de792d72b88e4ceac8037a42fb
 
 ---
 
@@ -315,11 +225,7 @@ Examples: `LRN-20250115-001`, `ERR-20250115-A3F`, `FEAT-20250115-002`
 
 When an issue is fixed, update the entry:
 
-<<<<<<< HEAD
-1. Change `**Status**: pending` â†’ `**Status**: resolved`
-=======
-1. Change `**Status**: pending` → `**Status**: resolved`
->>>>>>> e3f95ead324819de792d72b88e4ceac8037a42fb
+1. Change `**Status**: pending` Ã¢â€ â€™ `**Status**: resolved`
 2. Add resolution block after Metadata:
 
 ```markdown
@@ -352,22 +258,13 @@ When a learning is broadly applicable (not a one-off fix), promote it to permane
 | `CLAUDE.md` | Project facts, conventions, gotchas for all Claude interactions |
 | `AGENTS.md` | Agent-specific workflows, tool usage patterns, automation rules |
 | `.github/copilot-instructions.md` | Project context and conventions for GitHub Copilot |
-<<<<<<< HEAD
-=======
-| `SOUL.md` | Behavioral guidelines, communication style, principles (OpenClaw workspace) |
-| `TOOLS.md` | Tool capabilities, usage patterns, integration gotchas (OpenClaw workspace) |
->>>>>>> e3f95ead324819de792d72b88e4ceac8037a42fb
 
 ### How to Promote
 
 1. **Distill** the learning into a concise rule or fact
 2. **Add** to appropriate section in target file (create file if needed)
 3. **Update** original entry:
-<<<<<<< HEAD
-   - Change `**Status**: pending` â†’ `**Status**: promoted`
-=======
-   - Change `**Status**: pending` → `**Status**: promoted`
->>>>>>> e3f95ead324819de792d72b88e4ceac8037a42fb
+   - Change `**Status**: pending` Ã¢â€ â€™ `**Status**: promoted`
    - Add `**Promoted**: CLAUDE.md`, `AGENTS.md`, or `.github/copilot-instructions.md`
 
 ### Promotion Examples
@@ -401,15 +298,9 @@ If logging something similar to an existing entry:
 2. **Link entries**: Add `**See Also**: ERR-20250110-001` in Metadata
 3. **Bump priority** if issue keeps recurring
 4. **Consider systemic fix**: Recurring issues often indicate:
-<<<<<<< HEAD
-   - Missing documentation (â†’ promote to CLAUDE.md or .github/copilot-instructions.md)
-   - Missing automation (â†’ add to AGENTS.md)
-   - Architectural problem (â†’ create tech debt ticket)
-=======
-   - Missing documentation (→ promote to CLAUDE.md or .github/copilot-instructions.md)
-   - Missing automation (→ add to AGENTS.md)
-   - Architectural problem (→ create tech debt ticket)
->>>>>>> e3f95ead324819de792d72b88e4ceac8037a42fb
+   - Missing documentation (Ã¢â€ â€™ promote to CLAUDE.md or .github/copilot-instructions.md)
+   - Missing automation (Ã¢â€ â€™ add to AGENTS.md)
+   - Architectural problem (Ã¢â€ â€™ create tech debt ticket)
 
 ## Simplify & Harden Feed
 
@@ -443,11 +334,7 @@ Promotion targets:
 - `CLAUDE.md`
 - `AGENTS.md`
 - `.github/copilot-instructions.md`
-<<<<<<< HEAD
 - `CLAUDE.md` or project docs for workspace-level guidance when applicable
-=======
-- `SOUL.md` / `TOOLS.md` for OpenClaw workspace-level guidance when applicable
->>>>>>> e3f95ead324819de792d72b88e4ceac8037a42fb
 
 Write promoted rules as short prevention rules (what to do before/while coding),
 not long incident write-ups.
@@ -484,40 +371,24 @@ grep -l "Area\*\*: backend" .learnings/*.md
 
 Automatically log when you notice:
 
-<<<<<<< HEAD
-**Corrections** (â†’ learning with `correction` category):
-=======
-**Corrections** (→ learning with `correction` category):
->>>>>>> e3f95ead324819de792d72b88e4ceac8037a42fb
+**Corrections** (Ã¢â€ â€™ learning with `correction` category):
 - "No, that's not right..."
 - "Actually, it should be..."
 - "You're wrong about..."
 - "That's outdated..."
 
-<<<<<<< HEAD
-**Feature Requests** (â†’ feature request):
-=======
-**Feature Requests** (→ feature request):
->>>>>>> e3f95ead324819de792d72b88e4ceac8037a42fb
+**Feature Requests** (Ã¢â€ â€™ feature request):
 - "Can you also..."
 - "I wish you could..."
 - "Is there a way to..."
 - "Why can't you..."
 
-<<<<<<< HEAD
-**Knowledge Gaps** (â†’ learning with `knowledge_gap` category):
-=======
-**Knowledge Gaps** (→ learning with `knowledge_gap` category):
->>>>>>> e3f95ead324819de792d72b88e4ceac8037a42fb
+**Knowledge Gaps** (Ã¢â€ â€™ learning with `knowledge_gap` category):
 - User provides information you didn't know
 - Documentation you referenced is outdated
 - API behavior differs from your understanding
 
-<<<<<<< HEAD
-**Errors** (â†’ error entry):
-=======
-**Errors** (→ error entry):
->>>>>>> e3f95ead324819de792d72b88e4ceac8037a42fb
+**Errors** (Ã¢â€ â€™ error entry):
 - Command returns non-zero exit code
 - Exception or stack trace
 - Unexpected output or behavior

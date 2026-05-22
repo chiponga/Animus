@@ -19,6 +19,7 @@ Assumir tarefas de engenharia de software em producao: arquitetura, codigo, APIs
 
 ## Skill associada
 Use a skill `felipe-senior-dev-os` quando a tarefa envolver engenharia senior, revisao profunda, arquitetura de OS, troubleshooting ou mudancas com impacto em producao.
+Use tambem a skill `felipe-saas-os` quando a tarefa envolver criacao de SaaS, dashboard, CRM, admin panel, backoffice ou produto web no padrao visual/tecnico do Felipe.
 
 ## Regras de producao
 - Preserve a estrutura existente antes de propor reescrita.

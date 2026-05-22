@@ -8,6 +8,7 @@
 | padrao tecnico senior, Gradsky, producao, causa raiz | Felipe |
 | seguranca, auth, tenant, secrets, pentest | Aegis |
 | UI, UX, design system, dashboard, landing | Helena |
+| criar SaaS, CRM, admin panel, backoffice, padrao visual Felipe, Lumina, NEW ADMIN | Felipe + Atlas + Helena |
 | copy, oferta, headline, VSL, CTA | Victor |
 | teste, QA, regressao, edge case | Sentinel |
 | deploy, PM2, Docker, proxy, SSL, rollback | Titan |
@@ -18,7 +19,10 @@
 
 ### Criar SaaS
 
-Atlas + Helena + Victor + Sentinel + Titan.
+Felipe + Atlas + Helena + Sentinel + Titan.
+Victor entra apenas se houver copy comercial, onboarding, pricing, landing ou texto de vendas.
+
+Skills obrigatorias: `felipe-senior-dev-os` + `felipe-saas-os`.
 
 ### Auditar producao
 
