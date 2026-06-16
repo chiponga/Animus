@@ -82,12 +82,23 @@ Resiliência:
 ## Recursos
 
 - **Bot externo Python** sempre vivo, independente do Claude Code.
-- **9 subagentes especialistas** em `.claude/agents/`.
+- **9 subagentes especialistas** em `.claude/agents/` (auto-descobertos).
+- **57 skills** em `skills/` (auto-descobertas via symlink `.claude/skills/ → ../skills/`).
 - **Áudio bidirecional opcional** (Whisper entrada + ElevenLabs TTS saída).
 - **Memória vetorial opcional** via Supabase Postgres + pgvector (DATABASE_URL no `.env`).
 - **Aprendizado contínuo** via `.learnings/` (LEARNINGS.md, ERRORS.md, FEATURE_REQUESTS.md).
-- **Skill self-improvement** instalada em `skills/self-improvement/`.
 - **Marker `[[SEND_FILE:/path]]`** pra enviar arquivos como anexo no Telegram.
+
+### Skills premium (todas opcionais, pulam silenciosamente sem a key)
+
+| Skill | Key necessária | Onde pegar |
+|---|---|---|
+| `visual-gen` (imagem/vídeo via Flux, Imagen, Kling, Veo) | `MUAPI_API_KEY` | https://muapi.ai (pay-per-generation) |
+| `reddit-icp-monitor`, `claude-md-generator`, `producthunt-launch-kit`, `meeting-brief-generator` | `GEMINI_API_KEY` | https://aistudio.google.com/app/apikey (grátis) |
+| `cold-email-verifier` | `VALIDEMAIL_API_KEY` | https://validemail.co (50 grátis) |
+| `meeting-brief-generator` | `TAVILY_API_KEY` | https://tavily.com (grátis) |
+| `hackernews-intel` | `HN_KEYWORDS` + (opcional) `SLACK_WEBHOOK` | configure direto no `.env` |
+| `reddit-icp-monitor` (modo OAuth, 60 RPM) | `REDDIT_CLIENT_*` | https://www.reddit.com/prefs/apps |
 
 ---
 

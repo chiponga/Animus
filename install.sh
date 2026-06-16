@@ -129,6 +129,14 @@ if [[ -z "${SKIP_QUESTIONS:-}" ]]; then
   printf "Só preencha se for usar a API direta além do Claude Pro/Max já logado.\n\n"
   ask_secret "ANTHROPIC_API_KEY [enter pra pular]" ANTHROPIC_API_KEY no
 
+  echo
+  printf "${c_cyan}--- Skills premium (todas opcionais) ---${c_reset}\n"
+  printf "Cada key destrava 1+ skills. Pula tudo se quiser configurar depois.\n\n"
+  ask_secret "MUAPI_API_KEY (imagem/vídeo via Muapi.ai) [enter pra pular]" MUAPI_API_KEY no
+  ask_secret "GEMINI_API_KEY (4 skills com Gemini, grátis em aistudio.google.com) [enter pra pular]" GEMINI_API_KEY no
+  ask_secret "VALIDEMAIL_API_KEY (cold-email-verifier) [enter pra pular]" VALIDEMAIL_API_KEY no
+  ask_secret "TAVILY_API_KEY (meeting-brief-generator) [enter pra pular]" TAVILY_API_KEY no
+
   # -----------------------------------------------------------
   # 3. Escreve .env
   # -----------------------------------------------------------
@@ -147,7 +155,7 @@ PRODUCT_NAME=$PRODUCT_NAME
 TELEGRAM_BOT_TOKEN=$TELEGRAM_BOT_TOKEN
 ALLOWED_USERS=$ALLOWED_USERS
 
-CLAUDE_TIMEOUT=180
+CLAUDE_TIMEOUT=300
 
 DATABASE_URL=$DATABASE_URL
 
@@ -156,6 +164,29 @@ ELEVENLABS_API_KEY=$ELEVENLABS_API_KEY
 ELEVENLABS_VOICE_ID=${ELEVENLABS_VOICE_ID:-}
 
 ANTHROPIC_API_KEY=$ANTHROPIC_API_KEY
+
+# ----- Skills premium -----
+MUAPI_API_KEY=$MUAPI_API_KEY
+GEMINI_API_KEY=$GEMINI_API_KEY
+VALIDEMAIL_API_KEY=$VALIDEMAIL_API_KEY
+TAVILY_API_KEY=$TAVILY_API_KEY
+
+# Reddit OAuth (opcional pra reddit-icp-monitor)
+REDDIT_CLIENT_ID=
+REDDIT_CLIENT_SECRET=
+REDDIT_USERNAME=
+REDDIT_PASSWORD=
+
+# Notion (opcional pra meeting-brief-generator)
+NOTION_TOKEN=
+NOTION_DATABASE_ID=
+
+# Hacker News monitor (skill: hackernews-intel)
+HN_KEYWORDS=
+HN_MIN_POINTS=50
+HN_INCLUDE_COMMENTS=false
+HN_DB_PATH=
+SLACK_WEBHOOK=
 EOF
   chmod 600 "$ENV_FILE"
   ok ".env escrito (modo 600)."
